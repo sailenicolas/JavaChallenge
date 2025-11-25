@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  data:
+    build:
+      context: ./
+      args:
+        MODULE: data
+    container_name: data
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+  cache:
+    build:
+      context: ./
+      args:
+        MODULE: cache
+    container_name: cache
+    depends_on:
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+  pos:
+    build:
+      context: ./
+      args:
+        MODULE: pos
+    container_name: pos
+    env_file: .env
+    depends_on:
+      - redis
+      - cache
+  api:
+    build:
+      context: ./
+      args:
+        MODULE: api
+    container_name: api
+    env_file: .env
+    depends_on:
+      - db
+      - redis
+      - cache
+      - pos
+      - data
+    ports:
+      - "${LOCAL_PORT}:8088"
+  redis:
+    image: redis:latest # Or a specific version like redis:7.0.12
+    container_name: cacheRedis
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'auth ${REDIS_PASSWORD}\nping' | redis-cli | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6379:6379" # Map host port 6379 to container port 6379
+    env_file:
+      - .env
+  db:
+    image: postgres
+    container_name: db
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+    - "5432:5432"
+    volumes:
+      - dbVol:/var/lib/postgresql/data    # <- Rename "volume_name"
+volumes:
+  dbVol:                                 # <- Rename "volume_name"
+    name: dbVol                          # <- Rename "volume_name"

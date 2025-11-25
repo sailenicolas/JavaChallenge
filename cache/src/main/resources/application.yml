@@ -1,2 +1,13 @@
 server:
   port: 8088
+
+logging:
+  level:
+    sql: debug
+    org.springframework: debug
+spring:
+  mvc:
+    servlet:
+      path: /ms-cached
+  webflux:
+    base-path: /ms-cached

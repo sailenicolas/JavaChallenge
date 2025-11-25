@@ -1,0 +1,15 @@
+server:
+  port: 8090
+
+api:
+  config:
+    rest:
+      cached:
+        url: http://${HOST_CACHE}/ms-cached
+        debug: true
+spring:
+  mvc:
+    servlet:
+      path: /ms-pos
+  webflux:
+    base-path: /ms-pos

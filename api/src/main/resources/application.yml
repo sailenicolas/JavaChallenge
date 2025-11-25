@@ -1,0 +1,20 @@
+server:
+  port: 8087
+  servlet:
+    context-path: /ms-api
+
+api:
+  config:
+    rest:
+      pos:
+        url: http://${HOST_POS}/ms-pos
+        debug: true
+      data:
+        url: http://${HOST_DATA}/ms-data
+        debug: true
+logging:
+  level:
+    root: debug
+spring:
+  webflux:
+    base-path: /ms-api
