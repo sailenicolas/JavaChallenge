@@ -1,4 +1,4 @@
-package com.empresa.api.dtos.requests;
+package com.empresa.pos.dtos.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

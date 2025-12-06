@@ -7,10 +7,10 @@ api:
   config:
     rest:
       pos:
-        url: http://${HOST_POS}/ms-pos
+        url: http://${HOST_POS}:8090/ms-pos
         debug: true
       data:
-        url: http://${HOST_DATA}/ms-data
+        url: http://${HOST_DATA}:8089/ms-data
         debug: true
 logging:
   level:

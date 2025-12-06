@@ -1,4 +1,4 @@
-package com.empresa.api.dtos.response;
+package com.empresa.pos.dtos.response;
 
 import java.math.BigDecimal;
 import lombok.Getter;

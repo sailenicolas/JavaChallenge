@@ -1,4 +1,4 @@
-package com.empresa.api.dtos.response;
+package com.empresa.pos.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,5 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PosHash {
+    private String id;
     private String point;
 }

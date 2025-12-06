@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.cache.name }}
+  labels:
+    app: {{ .Values.services.cache.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.cache.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.cache.name }}
+    spec:
+      initContainers:
+        - name: wait-for-redis
+          image: busybox:1.28
+          command: ['sh', '-c', 'until nc -z redis 6379; do echo waiting for redis; sleep 2; done;']
+      containers:
+        - name: {{ .Values.services.cache.name }}
+          image: {{ .Values.services.cache.image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.cache.port }}
+          env:
+            - name: SPRING_DATA_REDIS_HOST
+              value: {{ .Values.env.redisHost }}
+            - name: SPRING_DATA_REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-sql
+                  key: redis-password
+        {{- if .Values.services.cache.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.cache.healthCheck.path }}
+              port: {{ .Values.services.cache.port }}
+            initialDelaySeconds: {{ .Values.services.cache.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.cache.healthCheck.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.services.cache.healthCheck.path }}
+              port: {{ .Values.services.cache.port }}
+            initialDelaySeconds: {{ .Values.services.cache.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.cache.healthCheck.periodSeconds }}
+        {{- end }}
+          resources:
+          {{- toYaml .Values.services.cache.resources | nindent 12 }}

@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.api.name }}
+  labels:
+    app: {{ .Values.services.api.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.api.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.api.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.api.name }}
+          image: {{ .Values.services.api.image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.api.port }}
+          env:
+            - name: HOST_POS
+              value: {{ .Values.services.pos.name }}:{{ .Values.services.pos.port }}
+            - name: HOST_DATA
+              value: {{ .Values.services.data.name }}:{{ .Values.services.pos.port }}
+        {{- if .Values.services.api.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.api.healthCheck.path }}
+              port: {{ .Values.services.api.port }}
+            initialDelaySeconds: {{ .Values.services.api.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.api.healthCheck.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.services.api.healthCheck.path }}
+              port: {{ .Values.services.api.port }}
+            initialDelaySeconds: {{ .Values.services.api.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.api.healthCheck.periodSeconds }}
+        {{- end }}
+          resources:
+          {{- toYaml .Values.services.api.resources | nindent 12 }}

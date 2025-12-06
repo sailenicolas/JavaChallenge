@@ -1,8 +1,10 @@
 package com.empresa.pos.clients;
 
+import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.config.RestConfig;
 import com.empresa.pos.dtos.requests.PosCostRequest;
 import com.empresa.pos.dtos.response.PosCostHash;
+import com.empresa.pos.dtos.response.PosCostMin;
 import com.empresa.pos.dtos.response.PosCostMinHash;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
@@ -21,7 +23,7 @@ public class CachePosCostClient {
                 .build();
     }
 
-    public Mono<PosCostHash> getPointB(String id, String idPointB) {
+    public Mono<ApiResponse<PosCostHash>> getPointB(String id, String idPointB) {
         return this.client.get()
                 .uri(o -> o
                         .pathSegment("PosCost", "pointB")
@@ -29,19 +31,21 @@ public class CachePosCostClient {
                         .queryParam("idPointB", idPointB)
                         .build())
                 .retrieve()
-                .bodyToMono(PosCostHash.class);
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {
+                });
     }
 
-    public Mono<PosCostHash> save(PosCostRequest a) {
+    public Mono<ApiResponse<PosCostHash>> save(PosCostRequest a) {
         return this.client.post().uri(o -> o
                         .pathSegment("PosCost")
                         .build())
                 .body(BodyInserters.fromValue(a))
                 .retrieve()
-                .bodyToMono(PosCostHash.class);
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {
+                });
     }
 
-    public Mono<List<PosCostHash>> findAll() {
+    public Mono<ApiResponse<List<PosCostHash>>> findAll() {
         return this.client.get().uri(o -> o
                         .pathSegment("PosCost")
                         .build())
@@ -50,7 +54,7 @@ public class CachePosCostClient {
                 });
     }
 
-    public Mono<PosCostMinHash> getMinCost(String idPointA, String idPointB) {
+    public Mono<ApiResponse<PosCostMin>> getMinCost(String idPointA, String idPointB) {
         return this.client.get().uri(o -> o
                         .pathSegment("PosCost", "pointMin")
                         .queryParam("id", idPointA).queryParam("idPointB", idPointB).build())
@@ -59,7 +63,7 @@ public class CachePosCostClient {
                 });
     }
 
-    public Mono<PosCostHash> deleteById(String id) {
+    public Mono<ApiResponse<PosCostHash>> deleteById(String id) {
         return this.client.delete().uri(o -> o
                         .pathSegment("PosCost")
                         .queryParam("id", id).build())
@@ -68,7 +72,7 @@ public class CachePosCostClient {
                 });
     }
 
-    public Mono<PosCostHash> findById(String id) {
+    public Mono<ApiResponse<PosCostHash>> findById(String id) {
         return this.client.get()
                 .uri(o -> o
                         .pathSegment("PosCost","byId", "{id}")
@@ -78,12 +82,24 @@ public class CachePosCostClient {
                 });
     }
 
-    public Mono<PosCostHash> update(PosCostRequest posHash) {
+    public Mono<ApiResponse<PosCostHash>> update(PosCostRequest posHash) {
         return this.client.put().uri( o -> o
                         .pathSegment("PosCost")
                         .build())
                 .body(BodyInserters.fromValue(posHash))
                 .retrieve()
-                .bodyToMono(PosCostHash.class);
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {
+                });
+    }
+
+    public Mono<ApiResponse<PosCostMinHash>> getMinCostBase(String source, String target) {
+        return this.client.get().uri(o -> o
+                        .pathSegment("PosCost", "pointMinBase")
+                        .queryParam("idA", source)
+                        .queryParam("idB", target)
+                        .build())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<>() {
+                });
     }
 }

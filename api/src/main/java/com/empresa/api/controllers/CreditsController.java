@@ -1,0 +1,35 @@
+package com.empresa.pos.controllers;
+
+import com.empresa.pos.dtos.requests.CreditsRequest;
+import com.empresa.pos.dtos.response.CreditsResponse;
+import com.empresa.pos.services.DataService;
+import com.empresa.core.dtos.responses.ApiResponse;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+@RestController("Credits")
+@RequestMapping(path = "/Credits")
+@AllArgsConstructor
+public class CreditsController {
+
+    private final DataService dataService;
+
+    @GetMapping
+    public Mono<ApiResponse<CreditsResponse>> getCredits(@RequestParam(name = "id") String id){
+        return dataService.getById(id).map(ApiResponse::new);
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<CreditsResponse>> postCredits(@RequestBody CreditsRequest id){
+        System.out.println("id = " + id.getPointId());
+        return ResponseEntity.ofNullable(dataService.createCredits(id).map(ApiResponse::new).blockOptional().orElseThrow());
+    }
+
+}

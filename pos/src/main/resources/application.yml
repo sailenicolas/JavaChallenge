@@ -5,7 +5,7 @@ api:
   config:
     rest:
       cached:
-        url: http://${HOST_CACHE}/ms-cached
+        url: http://${HOST_CACHE}:8088/ms-cached
         debug: true
 spring:
   mvc:
@@ -13,3 +13,6 @@ spring:
       path: /ms-pos
   webflux:
     base-path: /ms-pos
+logging:
+  level:
+    root: debug

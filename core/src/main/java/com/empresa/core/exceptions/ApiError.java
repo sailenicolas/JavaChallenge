@@ -30,4 +30,9 @@ public class ApiError {
     public ApiError(HttpStatusCode status, String missingParameter) {
         this("An Error Occurred: %s".formatted(status), missingParameter);
     }
+
+    public ApiError(ServiceException e) {
+        this.message = e.getMessage();
+        this.errors = e.getErrors();
+    }
 }

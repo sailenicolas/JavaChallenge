@@ -1,6 +1,6 @@
 package com.empresa.data.controllers;
 
-import com.empresa.core.dtos.ApiResponse;
+import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.data.models.CreditsModel;
 import com.empresa.data.services.DataService;
 import lombok.AllArgsConstructor;

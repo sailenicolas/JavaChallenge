@@ -3,7 +3,7 @@ package com.empresa.data;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = {"com.empresa"})
+@SpringBootApplication(scanBasePackages = {"com.empresa.data"})
 public class DataApplication {
     public static void main(String[] args) {
         SpringApplication.run(DataApplication.class, args);

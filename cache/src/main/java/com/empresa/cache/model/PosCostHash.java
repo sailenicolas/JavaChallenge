@@ -17,10 +17,8 @@ import org.springframework.data.redis.core.index.Indexed;
 public class PosCostHash {
     @Id
     private String id;
-
     @Indexed
     private String idPointA;
-
     @Indexed
     private String idPointB;
     private BigDecimal cost;

@@ -23,82 +23,84 @@ import org.springframework.web.server.UnsatisfiedRequestParameterException;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import reactor.core.publisher.Mono;
 
-public class ExceptionBaseHandler extends ResponseEntityExceptionHandler {
+public class ExceptionBaseHandler {
 
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<Object> handlerWebClientResponseException(WebClientResponseException e){
-        e.printStackTrace();
         return ResponseEntity.status(e.getStatusCode())
                 .body(e.getResponseBodyAsString());
+    }
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<Object> handlerServiceException(ServiceException e){
+        return ResponseEntity.status(e.getHttpStatusCode())
+                .body(new ApiError(e));
     }
     @ExceptionHandler(WebClientRequestException.class)
     public ResponseEntity<Object> handlerWebClientResponseException(WebClientRequestException e){
         return ResponseEntity.status(500).body(new ApiError());
     }
-
-    @Override
-    protected Mono<ResponseEntity<Object>> handleMethodNotAllowedException(MethodNotAllowedException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        ex.printStackTrace();
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Method Value invalid")));
+    @ExceptionHandler(MethodNotAllowedException.class)
+    public ResponseEntity<ApiError> handleMethodNotAllowedException(MethodNotAllowedException ex,  ServerWebExchange exchange) {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new ApiError(HttpStatus.METHOD_NOT_ALLOWED, "Method Value invalid"));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleNotAcceptableStatusException(NotAcceptableStatusException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Not Acceptable")));
+    @ExceptionHandler(NotAcceptableStatusException.class)
+    protected ResponseEntity<Object> handleNotAcceptableStatusException(NotAcceptableStatusException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new ApiError(HttpStatus.NOT_ACCEPTABLE, "Not Acceptable")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleUnsupportedMediaTypeStatusException(UnsupportedMediaTypeStatusException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Unsupported Media Type")));
+    @ExceptionHandler(UnsupportedMediaTypeStatusException.class)
+    protected ResponseEntity<Object> handleUnsupportedMediaTypeStatusException(UnsupportedMediaTypeStatusException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(new ApiError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleMissingRequestValueException(MissingRequestValueException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Missing Value")));
+    @ExceptionHandler(MissingRequestValueException.class)
+    protected ResponseEntity<Object> handleMissingRequestValueException(MissingRequestValueException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Missing Value")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleUnsatisfiedRequestParameterException(UnsatisfiedRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Missing Parameter")));
+    @ExceptionHandler(UnsatisfiedRequestParameterException.class)
+    protected ResponseEntity<Object> handleUnsatisfiedRequestParameterException(UnsatisfiedRequestParameterException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Missing Parameter")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleWebExchangeBindException(WebExchangeBindException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Bind Exception")));
+    @ExceptionHandler(WebExchangeBindException.class)
+    protected ResponseEntity<Object> handleWebExchangeBindException(WebExchangeBindException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Bind Exception")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleHandlerMethodValidationException(HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Validation Failed")));
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    protected ResponseEntity<Object> handleHandlerMethodValidationException(HandlerMethodValidationException ex,  ServerWebExchange exchange) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Validation Failed"));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleServerWebInputException(ServerWebInputException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Input Validation")));
+    @ExceptionHandler(ServerWebInputException.class)
+    protected ResponseEntity<Object> handleServerWebInputException(ServerWebInputException ex, ServerWebExchange exchange) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Input Validation"));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleResponseStatusException(ResponseStatusException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Response Status")));
+    @ExceptionHandler(ResponseStatusException.class)
+    protected ResponseEntity<Object> handleResponseStatusException(ResponseStatusException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Response Status")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleServerErrorException(ServerErrorException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Server Error")));
+    @ExceptionHandler(ServerErrorException.class)
+    protected ResponseEntity<Object> handleServerErrorException(ServerErrorException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Server Error")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleErrorResponseException(ErrorResponseException ex, HttpHeaders headers, HttpStatusCode status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Error Response Exception")));
+    @ExceptionHandler(ErrorResponseException.class)
+    protected ResponseEntity<Object> handleErrorResponseException(ErrorResponseException ex,  ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Error Response Exception")));
     }
 
-    @Override
-    protected Mono<ResponseEntity<Object>> handleMethodValidationException(MethodValidationException ex, HttpStatus status, ServerWebExchange exchange) {
-        return Mono.just(ResponseEntity.status(status).body(new ApiError(status, "Input Validation")));
+    @ExceptionHandler(MethodValidationException.class)
+    protected ResponseEntity<Object> handleMethodValidationException(MethodValidationException ex, ServerWebExchange exchange) {
+        return (ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST, "Input Validation")));
     }
     @ExceptionHandler(Exception.class)
-    public Mono<ResponseEntity<Object>> handlerException(Exception e){
-        return Mono.just(ResponseEntity.status(500).body(new ApiError()));
+    public ResponseEntity<Object> handlerException(Exception e){
+        return (ResponseEntity.status(500).body(new ApiError()));
     }
 
 }

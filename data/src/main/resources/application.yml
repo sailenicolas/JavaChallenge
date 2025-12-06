@@ -7,19 +7,10 @@ spring:
       dialect: postgresql
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
+
   mvc:
     servlet:
       path: /ms-data
   webflux:
     base-path: /ms-data
-  datasource:
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      max-lifetime: 1800000
-logging:
-  level:
-    sql: debug
-    org.springframework: debug

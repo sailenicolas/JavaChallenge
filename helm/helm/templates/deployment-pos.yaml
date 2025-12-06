@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.pos.name }}
+  labels:
+    app: {{ .Values.services.pos.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.pos.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.pos.name }}
+    spec:
+      containers:
+        - name: {{ .Values.services.pos.name }}
+          image: {{ .Values.services.pos.image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.pos.port }}
+          env:
+            - name: HOST_CACHE
+              value: {{ .Values.services.cache.name }}:{{ .Values.services.cache.port }}
+        {{- if .Values.services.data.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.pos.healthCheck.path }}
+              port: {{ .Values.services.pos.port }}
+            initialDelaySeconds: {{ .Values.services.pos.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.pos.healthCheck.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.services.pos.healthCheck.path }}
+              port: {{ .Values.services.pos.port }}
+            initialDelaySeconds: {{ .Values.services.pos.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.pos.healthCheck.periodSeconds }}
+        {{- end }}
+          resources:
+          {{- toYaml .Values.services.pos.resources | nindent 12 }}

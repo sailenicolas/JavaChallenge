@@ -1,5 +1,6 @@
 package com.empresa.pos.clients;
 
+import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.config.RestConfig;
 import com.empresa.pos.dtos.requests.PosCostRequest;
 import com.empresa.pos.dtos.requests.PosHashRequest;
@@ -22,16 +23,17 @@ public class CachePosClient {
                 .baseUrl(restConfig.getCached().getUrl())
                 .build();
     }
-    public Mono<PosHash> save(PosHashRequest a) {
+    public Mono<ApiResponse<PosHash>> save(PosHashRequest a) {
         return this.client.post().uri(o -> o
                         .pathSegment("Pos")
                         .build())
                 .body(BodyInserters.fromValue(a))
                 .retrieve()
-                .bodyToMono(PosHash.class);
+                .bodyToMono(new ParameterizedTypeReference<ApiResponse<PosHash>>() {
+                });
     }
 
-    public Mono<List<PosHash>> findAll() {
+    public Mono<ApiResponse<List<PosHash>>> findAll() {
         return this.client.get().uri(o -> o
                         .pathSegment("Pos")
                         .build())
@@ -40,7 +42,7 @@ public class CachePosClient {
                 });
     }
 
-    public Mono<PosHash> deleteById(String id) {
+    public Mono<ApiResponse<PosHash>> deleteById(String id) {
         return this.client.delete().uri(o -> o
                         .pathSegment("Pos")
                         .queryParam("id", id).build())
@@ -49,22 +51,23 @@ public class CachePosClient {
                 });
     }
 
-    public Mono<PosHash> findById(String id) {
+    public Mono<ApiResponse<PosHash>> findById(String id) {
         return this.client.get()
                 .uri(o -> o
-                        .pathSegment("Pos","byId", "{id}")
-                        .build(id))
+                        .pathSegment("Pos","byId", id)
+                        .build())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<>() {
                 });
     }
 
-    public Mono<PosHash> update(PosHashRequest posHash) {
+    public Mono<ApiResponse<PosHash>> update(PosHashRequest posHash) {
         return this.client.put().uri( o -> o
                         .pathSegment("Pos")
                         .build())
                 .body(BodyInserters.fromValue(posHash))
                 .retrieve()
-                .bodyToMono(PosHash.class);
+                .bodyToMono(new ParameterizedTypeReference<>() {
+                });
     }
 }

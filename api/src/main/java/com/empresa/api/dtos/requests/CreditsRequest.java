@@ -1,5 +1,8 @@
-package com.empresa.api.dtos.requests;
+package com.empresa.pos.dtos.requests;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +13,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreditsRequest {
+    @Pattern(regexp = "^\\d+$")
     private String pointId;
-    private String amount;
+    @Min(value = 0)
+    private BigDecimal amount;
 }

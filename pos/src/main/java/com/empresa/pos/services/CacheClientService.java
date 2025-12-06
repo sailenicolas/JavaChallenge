@@ -2,9 +2,9 @@ package com.empresa.pos.services;
 
 import com.empresa.pos.dtos.requests.PosCostRequest;
 import com.empresa.pos.dtos.response.PosCostHash;
+import com.empresa.pos.dtos.response.PosCostMin;
 import com.empresa.pos.dtos.response.PosCostMinHash;
 import java.util.List;
-import java.util.Optional;
 import reactor.core.publisher.Mono;
 
 public interface CacheClientService {
@@ -16,9 +16,11 @@ public interface CacheClientService {
 
     Mono<List<PosCostHash>> findAll();
 
-    Mono<PosCostMinHash> getMinCost(String idPointA, String idPointB);
+    Mono<PosCostMin> getMinCost(String idPointA, String idPointB);
 
     Mono<PosCostHash> findById(String id);
 
     Mono<PosCostHash> update(PosCostRequest posHash);
+
+    Mono<PosCostMinHash> findMinBase(String source, String target);
 }

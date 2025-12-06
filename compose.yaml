@@ -25,13 +25,17 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATA_REDIS_PASSWORD: ${REDIS_PASSWORD}
+      LOGGING_LEVEL_ROOT: INFO
+      SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
   pos:
     build:
       context: ./
       args:
         MODULE: pos
     container_name: pos
-    env_file: .env
+    env_file:
+      - .env
     depends_on:
       - redis
       - cache
@@ -41,7 +45,8 @@ services:
       args:
         MODULE: api
     container_name: api
-    env_file: .env
+    env_file:
+      - .env
     depends_on:
       - db
       - redis
@@ -49,7 +54,7 @@ services:
       - pos
       - data
     ports:
-      - "${LOCAL_PORT}:8088"
+      - "${LOCAL_PORT}:8087"
   redis:
     image: redis:latest # Or a specific version like redis:7.0.12
     container_name: cacheRedis
@@ -58,12 +63,14 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
+    volumes:
+      - ./redis-data:/data
     ports:
       - "6379:6379" # Map host port 6379 to container port 6379
     env_file:
       - .env
   db:
-    image: postgres
+    image: postgres:latest
     container_name: db
     env_file:
       - .env
@@ -74,8 +81,3 @@ services:
       retries: 10
     ports:
     - "5432:5432"
-    volumes:
-      - dbVol:/var/lib/postgresql/data    # <- Rename "volume_name"
-volumes:
-  dbVol:                                 # <- Rename "volume_name"
-    name: dbVol                          # <- Rename "volume_name"
