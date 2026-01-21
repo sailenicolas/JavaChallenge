@@ -20,6 +20,15 @@
         <maven.plugin.jacoco.version>0.8.11</maven.plugin.jacoco.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webflux-ui -->
         <dependency>
             <groupId>org.springdoc</groupId>

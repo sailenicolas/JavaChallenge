@@ -18,6 +18,15 @@
     <version>1.0.0</version>
 
     <dependencies>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         <!-- Starters típicos para una API -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
