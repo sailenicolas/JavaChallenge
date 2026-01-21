@@ -147,14 +147,14 @@ class ExceptionMVCHandlerTest {
 
     @Test
     void handleNoHandlerFoundException() {
-        ResponseEntity<Object> responseEntity = this.service.handleNoHandlerFoundException(new NoHandlerFoundException("", "", new HttpHeaders()), new HttpHeaders(), HttpStatus.BAD_REQUEST, mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Object> responseEntity = this.service.handleNoHandlerFoundException(new NoHandlerFoundException("", "", new HttpHeaders()), new HttpHeaders(), HttpStatus.NOT_FOUND, mock());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     void handleNoResourceFoundException() {
-        ResponseEntity<Object> responseEntity = this.service.handleNoResourceFoundException(new NoResourceFoundException(HttpMethod.POST, "Hell"), new HttpHeaders(), HttpStatus.BAD_REQUEST, mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        ResponseEntity<Object> responseEntity = this.service.handleNoResourceFoundException(new NoResourceFoundException(HttpMethod.POST, "Hell"), new HttpHeaders(), HttpStatus.NOT_FOUND, mock());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test

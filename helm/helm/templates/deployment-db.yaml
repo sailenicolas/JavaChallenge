@@ -1,4 +1,58 @@
 ---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-init-schema-job
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "5"
+    "hook.sh/hook-delete-policy": before-hook-creation, hook-succeeded
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: init-schema
+          image: {{ .Values.postgresql.image }}
+          env:
+            - name: PGHOST
+              value: db
+            - name: PGDATABASE
+              value: {{ .Values.env.postgresDb }}
+            - name: PGUSER
+              value: {{ .Values.env.postgresUser }}
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-sql
+                  key: user-password
+          command:
+            - sh
+            - -c
+            - |
+              echo "Esperando ..."
+              until pg_isready -h $PGHOST; do sleep 2; done
+              sed "s/POSTGRESQL_OWNER/$PGUSER/g" /scripts/init-schema.sql > /tmp/init-schema.sql
+              psql -f /tmp/init-schema.sql
+          volumeMounts:
+            - mountPath: /scripts
+              name: init-scripts
+              readOnly: true
+      volumes:
+        - name: init-scripts
+          configMap:
+            name: db-init-schema
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-init-schema
+  labels:
+    app: db
+data:
+  init-schema.sql: |
+    {{ .Files.Get "sql-schema/schema.sql" | nindent 8 }}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

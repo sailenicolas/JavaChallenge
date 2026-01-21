@@ -1,0 +1,17 @@
+{
+
+  "data": {
+      "id": 1,
+      "points": [
+        {
+          "id": 1,
+          "point": 1,
+          "cost": 1
+        }
+      ],
+      "minTotalCost": 1
+    },
+  "message": "Hello",
+  "timestamp": ""
+
+}

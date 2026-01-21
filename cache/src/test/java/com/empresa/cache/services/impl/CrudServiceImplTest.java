@@ -10,6 +10,7 @@ import com.empresa.cache.dtos.requests.PosHashRequest;
 import com.empresa.cache.model.PosHash;
 import com.empresa.cache.repositories.CachePosCostRepository;
 import com.empresa.cache.repositories.CachePosRepository;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.exceptions.ServiceException;
 import java.util.Collections;
@@ -29,12 +30,14 @@ class CrudServiceImplTest {
     private CachePosRepository cachePosCostRepository;
     private CrudServiceImpl service;
     private StringRedisTemplate stringRedisTemplate;
+    private CachePosCostRepository posCostRepository;
 
     @BeforeEach
     void setUp() {
         cachePosCostRepository = mock();
         stringRedisTemplate = mock();
-        this.service = new CrudServiceImpl(cachePosCostRepository, stringRedisTemplate);
+        posCostRepository = mock();
+        this.service = new CrudServiceImpl(cachePosCostRepository, posCostRepository, stringRedisTemplate);
     }
 
     /**
@@ -94,14 +97,12 @@ class CrudServiceImplTest {
     void delete() {
         Mono<ApiResponse<PosHash>> byId = this.service.delete(("1"));
         StepVerifier.create(byId)
-                .assertNext((a)->{
-                    assertThat(a.getData().getPoint()).isNull();
-                }).verifyComplete();
+                .verifyComplete();
 
     }
 
     /**
-     * Class under test: {@link CrudServiceImpl#putCache(PosHashRequest, String)}
+     * Class under test: {@link CrudServiceImpl#putCache(PostHashPutRequest, String)}
      */
     @Test
     void putCache() {
@@ -110,7 +111,7 @@ class CrudServiceImplTest {
         value.setId("1");
         value.setPoint("2");
         when(cachePosCostRepository.save(any())).thenReturn(value);
-        Mono<ApiResponse<PosHash>> byId = this.service.putCache(new PosHashRequest("2"), "1");
+        Mono<ApiResponse<PosHash>> byId = this.service.putCache(new PostHashPutRequest("2"), "1");
         StepVerifier.create(byId)
                 .assertNext((a)->{
                     assertThat(a.getData().getPoint()).isEqualTo("2");

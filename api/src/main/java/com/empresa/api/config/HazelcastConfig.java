@@ -1,4 +1,4 @@
-package com.empresa.pos.config;
+package com.empresa.api.config;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapConfig;
@@ -33,11 +33,12 @@ public class HazelcastConfig {
     private String hazelcastMetrics;
     @Value("${hazel.map.pos.ttl:86400}")
     private int mapMqTtl;
+    @Value("${hazelcast.logging.type:none}")
+    private String logging;
 
     @Bean
     HazelcastInstance getInstance(){
         Config config = new Config();
-        System.out.println("config = " + hazelcastClusterName);
         config.setClusterName(hazelcastClusterName);
         NetworkConfig networkConfig = config.getNetworkConfig();
         networkConfig.setPortAutoIncrement(true);
@@ -50,17 +51,10 @@ public class HazelcastConfig {
 
         config.setProperty("hazelcast.metrics.enabled", hazelcastMetrics);
         config.getMetricsConfig().setEnabled(Boolean.parseBoolean(hazelcastMetrics));
-        if (!Boolean.parseBoolean(hazelcastMetrics))
-            config.setProperty("hazelcast.logging.type", "none");
-        log.info("Esta activo la metrica HAZEL_METRICS {}", hazelcastMetrics);
+        config.setProperty("hazelcast.logging.type", logging);
         MapConfig mapConfig1 = new MapConfig("pos");
         mapConfig1.setTimeToLiveSeconds(mapMqTtl);
         config.addMapConfig(mapConfig1);
         return Hazelcast.newHazelcastInstance(config);
-    }
-
-    @PostConstruct
-    public void init(){
-        System.out.println("hazelcastClusterName = ");
     }
 }

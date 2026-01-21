@@ -1,8 +1,8 @@
-package com.empresa.pos.clients;
+package com.empresa.api.clients;
 
-import com.empresa.pos.config.RestConfig;
-import com.empresa.pos.dtos.requests.CreditsClientRequest;
-import com.empresa.pos.dtos.response.CreditsResponse;
+import com.empresa.api.config.RestConfig;
+import com.empresa.api.dtos.requests.CreditsClientRequest;
+import com.empresa.api.dtos.response.CreditsResponse;
 import com.empresa.core.dtos.responses.ApiResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;

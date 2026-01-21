@@ -1,4 +1,4 @@
-package com.empresa.pos.dtos.requests;
+package com.empresa.api.dtos.requests;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;

@@ -1,8 +1,11 @@
 package com.empresa.cache.services.impl;
 
 import com.empresa.cache.dtos.requests.PosHashRequest;
+import com.empresa.cache.model.PosCostHash;
 import com.empresa.cache.model.PosHash;
+import com.empresa.cache.repositories.CachePosCostRepository;
 import com.empresa.cache.repositories.CachePosRepository;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.exceptions.NotFoundServiceException;
 import com.empresa.core.exceptions.ServiceException;
@@ -19,8 +22,9 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 @AllArgsConstructor
-public class CrudServiceImpl implements CrudService<PosHash, PosHashRequest> {
+public class CrudServiceImpl implements CrudService<PosHash, PosHashRequest, PostHashPutRequest> {
     private final CachePosRepository cachePosRepository;
+    private final CachePosCostRepository cachePosCostRepository;
     private final StringRedisTemplate redisTemplate;
     @Override
     public Mono<ApiResponse<PosHash>> getById(String id) {
@@ -44,14 +48,41 @@ public class CrudServiceImpl implements CrudService<PosHash, PosHashRequest> {
 
     @Override
     public Mono<ApiResponse<PosHash>> delete(String id) {
-        return Mono.<PosHash>fromRunnable(()->cachePosRepository.deleteById(id))
+        Mono<Void> subscribeOnA = Mono.fromSupplier(() -> cachePosCostRepository.findAllByIdPointA(id))
+                .publishOn(Schedulers.boundedElastic())
                 .subscribeOn(Schedulers.boundedElastic())
-                .then(Mono.defer(() -> Mono.just(new PosHash())))
-                .subscribeOn(Schedulers.boundedElastic()).map(ApiResponse::new);
+                .publishOn(Schedulers.boundedElastic())
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap( o-> Mono.fromSupplier( ()-> o.parallelStream().map(PosCostHash::getId).toList())
+                        .publishOn(Schedulers.boundedElastic())
+                        .subscribeOn(Schedulers.boundedElastic())
+                )
+                .flatMap(b -> Mono.fromRunnable(()-> cachePosCostRepository.deleteAllById(b))
+                        .publishOn(Schedulers.boundedElastic())
+                        .subscribeOn(Schedulers.boundedElastic())
+                ).then();
+        Mono<Void> subscribeOnB = Mono.fromSupplier(() -> cachePosCostRepository.findAllByIdPointB(id))
+                .publishOn(Schedulers.boundedElastic())
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap( o-> Mono.fromSupplier( ()-> o.parallelStream().map(PosCostHash::getId).toList())
+                        .publishOn(Schedulers.boundedElastic())
+                        .subscribeOn(Schedulers.boundedElastic())
+                )
+                .flatMap(b -> Mono.fromRunnable(()-> cachePosCostRepository.deleteAllById(b))
+                        .publishOn(Schedulers.boundedElastic())
+                        .subscribeOn(Schedulers.boundedElastic())
+                ).then();
+        return Mono.<PosHash>fromRunnable(()->cachePosRepository.deleteById(id))
+                .then(subscribeOnA)
+                .then(subscribeOnB)
+                .then(Mono.fromCallable(() -> new ApiResponse<>(new PosHash())))
+                .publishOn(Schedulers.boundedElastic())
+                .subscribeOn(Schedulers.boundedElastic())
+                ;
     }
 
     @Override
-    public Mono<ApiResponse<PosHash>> putCache(PosHashRequest posHash, String id) {
+    public Mono<ApiResponse<PosHash>> putCache(PostHashPutRequest posHash, String id) {
         Mono<ApiResponse<PosHash>> posHashMono = this.getById(id)
                 .subscribeOn(Schedulers.boundedElastic())
                 .switchIfEmpty(Mono.error(new NotFoundServiceException()));
@@ -60,7 +91,8 @@ public class CrudServiceImpl implements CrudService<PosHash, PosHashRequest> {
             newCache.setPoint(posHash.getPoint());
             newCache.setId(id);
             return Mono.just(newCache);
-        }).flatMap(o -> Mono.fromSupplier(() -> cachePosRepository.save(o)).map(ApiResponse::new)
+        }).flatMap(o -> Mono.fromSupplier(() -> cachePosRepository.save(o))
+                .publishOn(Schedulers.boundedElastic()).subscribeOn(Schedulers.boundedElastic()).map(ApiResponse::new)
                 .subscribeOn(Schedulers.boundedElastic()));
     }
 

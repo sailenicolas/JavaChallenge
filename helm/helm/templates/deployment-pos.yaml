@@ -22,7 +22,7 @@ spec:
             - containerPort: {{ .Values.services.pos.port }}
           env:
             - name: HOST_CACHE
-              value: {{ .Values.services.cache.name }}:{{ .Values.services.cache.port }}
+              value: {{ .Values.services.cache.name }}
         {{- if .Values.services.data.healthCheck.enabled }}
           livenessProbe:
             httpGet:

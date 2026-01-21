@@ -1,11 +1,13 @@
-package com.empresa.pos.services.impl;
+package com.empresa.api.services.impl;
 
-import com.empresa.pos.clients.PosCostClient;
-import com.empresa.pos.dtos.requests.PosCostRequest;
-import com.empresa.pos.dtos.response.PosCostHash;
-import com.empresa.pos.dtos.response.PosCostMinHash;
-import com.empresa.pos.services.CacheClientService;
+import com.empresa.api.clients.PosCostClient;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.api.dtos.requests.PosCostRequest;
+import com.empresa.api.dtos.response.PosCostHash;
+import com.empresa.api.dtos.response.PosCostMinHash;
+import com.empresa.api.services.CacheClientService;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.core.exceptions.NotFoundServiceException;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,9 +20,9 @@ import reactor.core.publisher.Mono;
 public class CacheClientServiceImpl implements CacheClientService {
     private final PosCostClient posCostClient;
     @Override
-    @Cacheable(value = "pointB", key = "idPointA+'-'+idPointB")
-    public PosCostHash getPointB(String idPointA, String idPointB) {
-        return posCostClient.getPointB(idPointA,idPointB)
+    @Cacheable(value = "pointB", key = "#idPointA")
+    public List<PosCostBHash> getPointB(String idPointA) {
+        return posCostClient.getPointB(idPointA)
                 .map(ApiResponse::getData)
                 .blockOptional()
                 .orElseThrow(NotFoundServiceException::new);
@@ -64,8 +66,8 @@ public class CacheClientServiceImpl implements CacheClientService {
     }
 
     @Override
-    public Mono<PosCostHash> update(PosCostRequest posHash) {
-        return this.posCostClient.update(posHash)
+    public Mono<PosCostHash> update(PosCostPutRequest posHash, String id) {
+        return this.posCostClient.update(posHash, id)
                 .map(ApiResponse::getData);
     }
 }

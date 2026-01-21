@@ -1,8 +1,9 @@
-package com.empresa.pos.controllers;
+package com.empresa.api.controllers;
 
-import com.empresa.pos.dtos.requests.CreditsRequest;
-import com.empresa.pos.dtos.response.CreditsResponse;
-import com.empresa.pos.services.DataService;
+import com.empresa.api.dtos.requests.CreditsRequest;
+import com.empresa.api.dtos.response.CreditsResponse;
+import com.empresa.api.services.DataService;
+import com.empresa.core.annotations.LogStartClose;
 import com.empresa.core.dtos.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 @RestController("Credits")
 @RequestMapping(path = "/Credits")
 @AllArgsConstructor
+@LogStartClose
 public class CreditsController {
 
     private final DataService dataService;
@@ -27,9 +29,8 @@ public class CreditsController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreditsResponse>> postCredits(@RequestBody CreditsRequest id){
-        System.out.println("id = " + id.getPointId());
-        return ResponseEntity.ofNullable(dataService.createCredits(id).map(ApiResponse::new).blockOptional().orElseThrow());
+    public Mono<ResponseEntity<ApiResponse<CreditsResponse>>> postCredits(@RequestBody CreditsRequest id){
+        return dataService.createCredits(id).map(ApiResponse::new).map(ResponseEntity::ofNullable);
     }
 
 }

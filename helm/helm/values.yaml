@@ -1,0 +1,172 @@
+# Default values for challenge application
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent  # Para Minikube con imágenes locales
+  
+services:
+  data:
+    name: data
+    image: sailenicolas/challenge1jt-data:latest
+    ddl: CREATE
+    port: 8089
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage: 80
+    healthCheck:
+      enabled: true
+      path: /ms-data/actuator/health
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      
+  cache:
+    name: cache
+    image: sailenicolas/challenge1jt-cache:latest
+    port: 8088
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage: 80
+    healthCheck:
+      enabled: true
+      path: /ms-cached/actuator/health
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      
+  pos:
+    name: pos
+    image: sailenicolas/challenge1jt-pos:latest
+    port: 8090
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage: 80
+    healthCheck:
+      enabled: true
+      path: /ms-pos/actuator/health
+      initialDelaySeconds: 60
+      periodSeconds: 10
+      
+  api:
+    name: api
+    image: sailenicolas/challenge1jt-api:latest
+    port: 8087
+    externalPort: 8768
+    hazelcast:
+      cluster: 'ms-api-haz'
+      k8s  : 'true'
+      tcp  : 'false'
+      service  : 'ms-api'
+      namespace  : 'default'
+      port  : '5701'
+      metrics  : 'false'
+      logging: 'none'
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+    hpa:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 2
+      targetCPUUtilizationPercentage: 70
+      targetMemoryUtilizationPercentage: 80
+    healthCheck:
+      enabled: true
+      path: /ms-api/actuator/health
+      initialDelaySeconds: 60
+      periodSeconds: 10
+
+# PostgreSQL configuration
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  image: postgres:latest
+  port: 5432
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: standard
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "250m"
+
+# Redis configuration
+redis:
+  enabled: true
+  image: redis:latest
+  port: 6379
+  persistence:
+    enabled: true
+    size: 1Gi
+    storageClass: standard
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+# Service configuration
+service:
+  type: LoadBalancer  # Para usar con Ingress
+  
+# Ingress configuration
+ingress:
+  enabled: true
+  name: challenge-ingress
+  className: nginx  # nginx para Minikube
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  hosts:
+    - host: challenge.local  # Dominio local para pruebas
+      paths:
+        - path: /
+          pathType: Prefix
+          serviceName: api
+          servicePort: 8768
+  tls: []  # Deja vacío para desarrollo sin TLS
+  
+# Environment variables
+env:
+  postgresDb: challengedb
+  postgresUser: postgres
+  redisHost: redis

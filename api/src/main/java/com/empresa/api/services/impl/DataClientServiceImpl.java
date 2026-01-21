@@ -1,9 +1,9 @@
-package com.empresa.pos.services.impl;
+package com.empresa.api.services.impl;
 
-import com.empresa.pos.clients.CreditsClient;
-import com.empresa.pos.dtos.requests.CreditsClientRequest;
-import com.empresa.pos.dtos.response.CreditsResponse;
-import com.empresa.pos.services.DataClientService;
+import com.empresa.api.clients.CreditsClient;
+import com.empresa.api.dtos.requests.CreditsClientRequest;
+import com.empresa.api.dtos.response.CreditsResponse;
+import com.empresa.api.services.DataClientService;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.exceptions.NotFoundServiceException;
 import lombok.AllArgsConstructor;

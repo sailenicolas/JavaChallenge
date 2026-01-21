@@ -1,0 +1,35 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-data/credits",
+        "queryParameters": {
+          "id": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "data/GetResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/ms-data/credits"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "data/POSTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

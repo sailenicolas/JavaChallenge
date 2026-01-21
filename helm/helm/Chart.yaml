@@ -1,0 +1,12 @@
+apiVersion: v2
+name: challenge-app
+description: A Helm chart for Challenge microservices application
+type: application
+version: 1.0.0
+appVersion: "1.0"
+keywords:
+  - microservices
+  - java
+  - spring-boot
+maintainers:
+  - name: DevOps Team

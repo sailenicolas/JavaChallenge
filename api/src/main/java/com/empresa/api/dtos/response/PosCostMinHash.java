@@ -1,5 +1,6 @@
-package com.empresa.pos.dtos.response;
+package com.empresa.api.dtos.response;
 
+import com.empresa.core.dtos.responses.PosCostBHash;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PosCostMinHash {
     private String id;
-    private List<PosCostHash> points;
+    private List<PosCostBHash> points;
     private BigDecimal minTotalCost;
 }

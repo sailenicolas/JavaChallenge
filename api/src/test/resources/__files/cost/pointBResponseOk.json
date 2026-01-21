@@ -1,0 +1,14 @@
+{
+
+  "data": [{
+      "id": 1,
+    "idPointA": 1,
+    "idPointB": 1,
+    "pointNameB": 1,
+    "pointNameA": 1,
+    "cost": 1
+  }],
+  "message": "Hello",
+  "timestamp": ""
+
+}

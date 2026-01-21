@@ -8,7 +8,6 @@ import reactor.core.publisher.Hooks;
 public class PosApplication {
     public static void main(String[] args) {
         Hooks.enableAutomaticContextPropagation();
-        Hooks.enableContextLossTracking();
         SpringApplication.run(PosApplication.class, args);
     }
 }

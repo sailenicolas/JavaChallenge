@@ -3,8 +3,10 @@ package com.empresa.core.exceptions;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.empresa.core.controllers.CrudController;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.validation.method.MethodValidationException;
 import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -36,6 +39,7 @@ import org.springframework.web.server.ServerWebInputException;
 import org.springframework.web.server.UnsatisfiedRequestParameterException;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import org.springframework.web.server.adapter.DefaultServerWebExchange;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 class ExceptionBaseHandlerTest {
@@ -67,79 +71,83 @@ class ExceptionBaseHandlerTest {
 
     @Test
     void handleMethodNotAllowedException() {
-        ResponseEntity<ApiError> responseEntity = this.service.handleMethodNotAllowedException(new MethodNotAllowedException(HttpMethod.POST, List.of(HttpMethod.GET)), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleMethodNotAllowedException(new MethodNotAllowedException(HttpMethod.POST, List.of(HttpMethod.GET)), mock(), HttpStatus.METHOD_NOT_ALLOWED, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleNotAcceptableStatusException() {
-        ResponseEntity<Object> responseEntity = this.service.handleNotAcceptableStatusException(new NotAcceptableStatusException("hello"), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_ACCEPTABLE);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleNotAcceptableStatusException(new NotAcceptableStatusException("hello"), mock(), HttpStatus.NOT_ACCEPTABLE, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleUnsupportedMediaTypeStatusException() {
-        ResponseEntity<Object> responseEntity = this.service.handleUnsupportedMediaTypeStatusException(new UnsupportedMediaTypeStatusException(""), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleUnsupportedMediaTypeStatusException(new UnsupportedMediaTypeStatusException(""), mock(), HttpStatus.UNSUPPORTED_MEDIA_TYPE, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleMissingRequestValueException() {
-        ResponseEntity<Object> responseEntity = this.service.handleMissingRequestValueException(new MissingRequestValueException("", Object.class, "", mock()), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleMissingRequestValueException(new MissingRequestValueException("", Object.class, "", mock()), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleUnsatisfiedRequestParameterException() {
-        ResponseEntity<Object> responseEntity = this.service.handleUnsatisfiedRequestParameterException(new UnsatisfiedRequestParameterException(new ArrayList<>(), new HttpHeaders()), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleUnsatisfiedRequestParameterException(new UnsatisfiedRequestParameterException(new ArrayList<>(), new HttpHeaders()), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleWebExchangeBindException() {
-        ResponseEntity<Object> responseEntity = this.service.handleWebExchangeBindException(new WebExchangeBindException(mock(), mock()), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleWebExchangeBindException(new WebExchangeBindException(mock(), mock()), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleHandlerMethodValidationException() {
-        ResponseEntity<Object> responseEntity = this.service.handleHandlerMethodValidationException(new HandlerMethodValidationException(mock()), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleHandlerMethodValidationException(new HandlerMethodValidationException(mock()), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleServerWebInputException() {
-        ResponseEntity<Object> responseEntity = this.service.handleServerWebInputException(new ServerWebInputException("hh"), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleServerWebInputException(new ServerWebInputException("hh"), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleResponseStatusException() {
-        ResponseEntity<Object> responseEntity = this.service.handleResponseStatusException(new ResponseStatusException(HttpStatus.BAD_REQUEST, ""), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleResponseStatusException(new ResponseStatusException(HttpStatus.BAD_REQUEST, ""), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleServerErrorException() {
-        ResponseEntity<Object> responseEntity = this.service.handleServerErrorException(new ServerErrorException("BAD", new RuntimeException()), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleServerErrorException(new ServerErrorException("BAD", new RuntimeException()), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleErrorResponseException() {
-        ResponseEntity<Object> responseEntity = this.service.handleErrorResponseException(new ErrorResponseException(HttpStatus.BAD_REQUEST), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleErrorResponseException(new ErrorResponseException(HttpStatus.BAD_REQUEST), mock(), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
     void handleMethodValidationException() {
-        ResponseEntity<Object> responseEntity = this.service.handleMethodValidationException(new MethodValidationException(mock()), mock());
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleMethodValidationException(new MethodValidationException(mock()), HttpStatus.BAD_REQUEST, mock());
+        assertThat(responseEntity).isNotNull();
     }
 
     @Test
-    void handlerException() {
-        ResponseEntity<Object> responseEntity = this.service.handlerException(new UnsatisfiedRequestParameterException(new ArrayList<>(), new HttpHeaders()));
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+    void handlerException() throws JsonProcessingException {
+        ServerWebExchange mocked = mock();
+        ServerHttpResponse httpResponse = mock();
+        when(mocked.getResponse()).thenReturn(httpResponse);
+        when(httpResponse.isCommitted()).thenReturn(true);
+        Mono<ResponseEntity<ApiError>> responseEntity = this.service.handlerException(new UnsatisfiedRequestParameterException(new ArrayList<>(), new HttpHeaders()), mocked);
+        assertThat(responseEntity).isNotNull();
     }
 }

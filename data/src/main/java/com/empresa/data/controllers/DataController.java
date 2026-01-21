@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(path = "/credits")
@@ -20,13 +21,15 @@ public class DataController {
     private final DataService dataService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<CreditsModel>> getCredits(@RequestParam(name = "id") String id){
-        return ResponseEntity.of(dataService.getById(id).map(ApiResponse::new));
+    public Mono<ResponseEntity<ApiResponse<CreditsModel>>> getCredits(@RequestParam(name = "id") String id){
+        Mono<ApiResponse<CreditsModel>> map = dataService.getById(id).map(ApiResponse::new);
+        return map.map(ResponseEntity::ofNullable);
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CreditsModel>> postCredits(@RequestBody CreditsModel id){
-        return ResponseEntity.ofNullable(new ApiResponse<>(dataService.createCredits(id)));
+    public Mono<ResponseEntity<ApiResponse<CreditsModel>>> postCredits(@RequestBody CreditsModel id){
+        Mono<ApiResponse<CreditsModel>> map = dataService.createCredits(id).map(ApiResponse::new);
+        return map.map(ResponseEntity::ofNullable);
     }
 
 }

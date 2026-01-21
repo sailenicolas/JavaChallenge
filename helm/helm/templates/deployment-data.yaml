@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.data.name }}
+  labels:
+    app: {{ .Values.services.data.name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.data.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.data.name }}
+    spec:
+      initContainers:
+        - name: wait-for-challenge-app-postgresql
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z db.default.svc.cluster.local 5432; do echo waiting for db; sleep 2; done;']
+      containers:
+        - name: {{ .Values.services.data.name }}
+          image: {{ .Values.services.data.image }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.data.port }}
+          env:
+            - name: LOGGING_LEVEL_SQL
+              value: DEBUG
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              value: DEBUG
+            - name: SPRING_R2DBC_URL
+              value: "r2dbc:postgresql://db:5432/{{ .Values.env.postgresDb }}"
+            - name: SPRING_R2DBC_USERNAME
+              value: {{ .Values.env.postgresUser }}
+            - name: SPRING_R2DBC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-sql
+                  key: user-password
+            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+              value: {{ .Values.services.data.ddl }}
+        {{- if .Values.services.data.healthCheck.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.data.healthCheck.path }}
+              port: {{ .Values.services.data.port }}
+            initialDelaySeconds: {{ .Values.services.data.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.data.healthCheck.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.services.data.healthCheck.path }}
+              port: {{ .Values.services.data.port }}
+            initialDelaySeconds: {{ .Values.services.data.healthCheck.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.data.healthCheck.periodSeconds }}
+        {{- end }}
+          resources:
+          {{- toYaml .Values.services.data.resources | nindent 12 }}

@@ -1,11 +1,12 @@
 package com.empresa.pos.services.impl;
 
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.pos.clients.CachePosCostClient;
 import com.empresa.pos.dtos.requests.PosCostRequest;
 import com.empresa.pos.dtos.response.PosCostHash;
 import com.empresa.pos.dtos.response.PosCostMin;
-import com.empresa.pos.dtos.response.PosCostMinHash;
 import com.empresa.pos.services.CacheClientService;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -17,13 +18,15 @@ import reactor.core.publisher.Mono;
 public class CacheClientServiceImpl implements CacheClientService {
     private final CachePosCostClient cachePosCostClient;
     @Override
-    public Mono<PosCostHash> getPointB(String idPointA, String idPointB) {
-        return cachePosCostClient.getPointB(idPointA,idPointB).map(ApiResponse::getData);
+    public Mono<List<PosCostBHash>> getPointB(String idPointA) {
+        return cachePosCostClient.getPointB(idPointA)
+                .map(ApiResponse::getData);
     }
 
     @Override
     public Mono<PosCostHash> save(PosCostRequest a) {
-        return cachePosCostClient.save(a).map(ApiResponse::getData);
+        return cachePosCostClient.save(a)
+                .map(ApiResponse::getData);
     }
 
     @Override
@@ -33,27 +36,25 @@ public class CacheClientServiceImpl implements CacheClientService {
 
     @Override
     public Mono<List<PosCostHash>> findAll() {
-        return this.cachePosCostClient.findAll().map(ApiResponse::getData);
+        return this.cachePosCostClient.findAll()
+                .map(ApiResponse::getData);
     }
 
     @Override
-    public Mono<PosCostMin> getMinCost(String idPointA, String idPointB) {
-        return this.cachePosCostClient.getMinCost(idPointA, idPointB).map(ApiResponse::getData);
+    public Mono<PosCostMin> getMinCostBase(String idPointA, String idPointB) {
+        return this.cachePosCostClient.getMinCostBase(idPointA, idPointB)
+                .map(ApiResponse::getData);
     }
 
     @Override
     public Mono<PosCostHash> findById(String id) {
-        return this.cachePosCostClient.findById(id).map(ApiResponse::getData);
+        return this.cachePosCostClient.findById(id)
+                .map(ApiResponse::getData);
     }
 
     @Override
-    public Mono<PosCostHash> update(PosCostRequest posHash) {
-        return this.cachePosCostClient.update(posHash).map(ApiResponse::getData);
+    public Mono<PosCostHash> update(PosCostPutRequest posHash, String id) {
+        return this.cachePosCostClient.update(posHash, id)
+                .map(ApiResponse::getData);
     }
-
-    @Override
-    public Mono<PosCostMinHash> findMinBase(String source, String target) {
-        return cachePosCostClient.getMinCostBase(source, target).map(ApiResponse::getData);
-    }
-
 }

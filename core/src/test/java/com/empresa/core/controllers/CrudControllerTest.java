@@ -18,13 +18,13 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 class CrudControllerTest {
-    private CrudService<Object, Object> service;
-    private CrudController<Object, Object> controller;
+    private CrudService<Object, Object, Object> service;
+    private CrudController<Object, Object, Object> controller;
 
     @BeforeEach
     void setUp() {
         this.service = mock();
-        this.controller = new CrudController<>(service);
+        this.controller = new CrudController<>(service,service,service,service,service);
     }
 
     @Test

@@ -1,36 +1,42 @@
 package com.empresa.data.models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@EntityListeners(AuditingEntityListener.class)
-public class CreditsModel {
+@Table
+public class CreditsModel implements Persistable<String> {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    public CreditsModel() {
+        this.isNew = true;
+        this.id = UUID.randomUUID().toString();
+    }
+
     @CreatedDate
-    @Column(name = "created_at")
+    @Column(value = "created_at")
     private LocalDateTime createdAt;
     private String pointName;
     private String pointId;
     private String amount;
+    @Transient
+    private boolean isNew;
+
+    @Override
+    public boolean isNew() {
+        return this.isNew;
+    }
 }

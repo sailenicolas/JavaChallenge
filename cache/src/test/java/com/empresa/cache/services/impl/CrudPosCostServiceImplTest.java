@@ -6,16 +6,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.empresa.cache.dtos.requests.PosCostRequest;
-import com.empresa.cache.dtos.requests.PostCostMinRequest;
-import com.empresa.cache.dtos.response.PosCostMin;
+import com.empresa.cache.dtos.response.PosCostMinBase;
 import com.empresa.cache.model.PosCostHash;
-import com.empresa.cache.model.PosCostMinHash;
-import com.empresa.cache.repositories.CachePosCostMinRepository;
+import com.empresa.cache.model.PosHash;
 import com.empresa.cache.repositories.CachePosCostRepository;
+import com.empresa.cache.repositories.CachePosRepository;
+import com.empresa.cache.services.CrudExtraService;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,13 +27,13 @@ import reactor.test.StepVerifier;
 class CrudPosCostServiceImplTest {
     private CrudPosCostServiceImpl posCostService;
     private CachePosCostRepository cachePosCostRepository;
-    private CachePosCostMinRepository cachePosCostMinRepository;
+    private CachePosRepository cachePosRepository;
 
     @BeforeEach
     void setUp() {
          cachePosCostRepository = mock();
-         cachePosCostMinRepository = mock();
-        this.posCostService = new CrudPosCostServiceImpl(cachePosCostRepository, cachePosCostMinRepository);
+        cachePosRepository = mock();
+        this.posCostService = new CrudPosCostServiceImpl(cachePosRepository,cachePosCostRepository);
     }
 
     /**
@@ -83,7 +86,7 @@ class CrudPosCostServiceImplTest {
     }
 
     /**
-     * Class under test: {@link CrudPosCostServiceImpl#putCache(PosCostRequest, String)}
+     * Class under test: {@link CrudPosCostServiceImpl#putCache(PosCostPutRequest, String)} 
      */
     @Test
     void putCache() {
@@ -92,10 +95,9 @@ class CrudPosCostServiceImplTest {
         id.setIdPointA("1");
         id.setIdPointB("2");
         when(this.cachePosCostRepository.save(any())).thenReturn(id);
-        PosCostRequest id1 = new PosCostRequest();
+        when(this.cachePosCostRepository.findById(any())).thenReturn(Optional.of(id));
+        PosCostPutRequest id1 = new PosCostPutRequest();
         id1.setCost(new BigDecimal("1"));
-        id1.setIdPointA("1");
-        id1.setIdPointB("2");
         StepVerifier.create(this.posCostService.putCache(id1, "1"))
                 .assertNext((o)->{
                     assertThat(o.getData().getCost()).isEqualTo(id.getCost());
@@ -125,7 +127,7 @@ class CrudPosCostServiceImplTest {
     }
 
     /**
-     * Class under test: {@link CrudPosCostServiceImpl#getPointB(String, String)}
+     * Class under test: {@link CrudExtraService#getPointA(String)}
      */
     @Test
     void getPointB() {
@@ -133,13 +135,23 @@ class CrudPosCostServiceImplTest {
         id.setCost(new BigDecimal("1"));
         id.setIdPointA("1");
         id.setIdPointB("2");
-        when(this.cachePosCostRepository.findById(any())).thenReturn(Optional.of(id));
-        Optional<ApiResponse<PosCostHash>> pointB = this.posCostService.getPointB("1", "2");
-        assertThat(pointB).isNotNull();
+        List<PosCostHash> ida = List.of(id);
+        PosHash posHash = new PosHash();
+        posHash.setPoint("hello");
+        posHash.setId("1");
+        PosHash posHash1 = new PosHash();
+        posHash1.setPoint("hello");
+        posHash1.setId("2");
+        when(this.cachePosRepository.findById(any())).thenReturn(Optional.of(posHash));
+        when(this.cachePosRepository.findAllById(any())).thenReturn(List.of(posHash1, posHash));
+        when(this.cachePosCostRepository.findAllByIdPointA(any())).thenReturn(ida);
+        Optional<ApiResponse<List<PosCostBHash>>> pointB = this.posCostService.getPointA("1");
+        List<PosCostBHash> data = assertThat(pointB).isPresent().get().actual().getData();
+        assertThat(data).isNotNull();
     }
 
     /**
-     * Class under test: {@link CrudPosCostServiceImpl#getPointsMin(String, String)}
+     * Class under test: {@link CrudPosCostServiceImpl#getPointMinBase(String, String)}
      */
     @Test
     void getPointsMin() {
@@ -147,50 +159,33 @@ class CrudPosCostServiceImplTest {
         id.setCost(new BigDecimal("1"));
         id.setIdPointA("1");
         id.setIdPointB("2");
+        PosCostHash id1 = new PosCostHash();
+        id1.setCost(new BigDecimal("5"));
+        id1.setIdPointA("3");
+        id1.setIdPointB("4");
+        PosHash posHash = new PosHash();
+        posHash.setId("1");
+        posHash.setPoint("hello");
+        PosHash posHash1 = new PosHash();
+        posHash1.setId("2");
+        posHash1.setPoint("hello");
+        PosHash posHash2 = new PosHash();
+        posHash2.setId("3");
+        posHash2.setPoint("hello");
+        PosHash posHash3 = new PosHash();
+        posHash3.setId("4");
+        posHash3.setPoint("hello");
+        PosHash posHash4 = new PosHash();
+        posHash4.setId("5");
+        posHash4.setPoint("hello");
+        when(this.cachePosRepository.findById(any())).thenReturn(Optional.of(posHash));
+        Iterable<PosHash> aa = List.of(posHash,posHash1,posHash2,posHash3,posHash4);
+        when(this.cachePosRepository.findAllById(any())).thenReturn(aa);
         when(this.cachePosCostRepository.findAllByIdPointA(any())).thenReturn(Collections.singletonList(id));
-        when(this.cachePosCostRepository.findAllByIdPointB(any())).thenReturn(Collections.singletonList(id));
-        PosCostMin pointB = this.posCostService.getPointsMin("1", "2").getData();
+        when(this.cachePosCostRepository.findAllByIdPointB(any())).thenReturn(Collections.singletonList(id1));
+        PosCostMinBase pointB = this.posCostService.getPointMinBase("1", "2").getData();
         assertThat(pointB.incoming().size()).isEqualTo(1);
         assertThat(pointB.outgoing().size()).isEqualTo(1);
     }
 
-    /**
-     * Class under test: {@link CrudPosCostServiceImpl#postCostMin(PostCostMinRequest)}
-     */
-    @Test
-    void postCostMin() {
-        PosCostHash id = new PosCostHash();
-        id.setCost(new BigDecimal("1"));
-        id.setIdPointA("1");
-        id.setIdPointB("2");
-        PosCostMinHash value = new PosCostMinHash();
-        value.setId("id");
-        value.setMinTotalCost(new BigDecimal("1"));
-        value.setPoints(Collections.singletonList(id));
-        when(this.cachePosCostMinRepository.save(any())).thenReturn(value);
-        PostCostMinRequest postCostMinRequest = new PostCostMinRequest(Collections.singletonList(id), new BigDecimal("1"), "", "");
-        PosCostMinHash pointB = this.posCostService.postCostMin(postCostMinRequest).getData();
-        assertThat(pointB.getMinTotalCost()).isEqualTo(new BigDecimal("1"));
-
-    }
-
-    /**
-     * Class under test: {@link CrudPosCostServiceImpl#getPointMinBase(String, String)}
-     */
-    @Test
-    void getPointMinBase() {
-        PosCostHash id = new PosCostHash();
-        id.setCost(new BigDecimal("1"));
-        id.setIdPointA("1");
-        id.setIdPointB("2");
-        PosCostMinHash value = new PosCostMinHash();
-        value.setId("id");
-        value.setMinTotalCost(new BigDecimal("1"));
-        value.setPoints(Collections.singletonList(id));
-        Optional<PosCostMinHash> id1 = Optional.of(value);
-        when(this.cachePosCostMinRepository.findById(any())).thenReturn(id1);
-        Optional<ApiResponse<PosCostMinHash>> pointB = this.posCostService.getPointMinBase("a", "a");
-        assertThat(pointB).isPresent();
-        assertThat(pointB.get().getData().getMinTotalCost()).isEqualTo(new BigDecimal("1"));
-    }
 }

@@ -1,11 +1,9 @@
 package com.empresa.pos.clients;
 
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.config.RestConfig;
-import com.empresa.pos.dtos.requests.PosCostRequest;
 import com.empresa.pos.dtos.requests.PosHashRequest;
-import com.empresa.pos.dtos.response.PosCostHash;
-import com.empresa.pos.dtos.response.PosCostMinHash;
 import com.empresa.pos.dtos.response.PosHash;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
@@ -61,9 +59,10 @@ public class CachePosClient {
                 });
     }
 
-    public Mono<ApiResponse<PosHash>> update(PosHashRequest posHash) {
+    public Mono<ApiResponse<PosHash>> update(PosCostPutRequest posHash, String id) {
         return this.client.put().uri( o -> o
                         .pathSegment("Pos")
+                        .queryParam("id", id)
                         .build())
                 .body(BodyInserters.fromValue(posHash))
                 .retrieve()

@@ -1,4 +1,4 @@
-package com.empresa.pos.config;
+package com.empresa.api.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

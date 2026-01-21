@@ -1,8 +1,9 @@
-package com.empresa.pos.clients;
+package com.empresa.api.clients;
 
-import com.empresa.pos.config.RestConfig;
-import com.empresa.pos.dtos.requests.PosHashRequest;
-import com.empresa.pos.dtos.response.PosHash;
+import com.empresa.api.config.RestConfig;
+import com.empresa.api.dtos.requests.PosHashRequest;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
+import com.empresa.api.dtos.response.PosHash;
 import com.empresa.core.dtos.responses.ApiResponse;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
@@ -58,9 +59,10 @@ public class PosClient {
                 });
     }
 
-    public Mono<ApiResponse<PosHash>> update(PosHashRequest posHash) {
+    public Mono<ApiResponse<PosHash>> update(PostHashPutRequest posHash, String id) {
         return this.client.put().uri( o -> o
                         .pathSegment("Pos")
+                        .queryParam("id", id)
                         .build())
                 .body(BodyInserters.fromValue(posHash))
                 .retrieve()

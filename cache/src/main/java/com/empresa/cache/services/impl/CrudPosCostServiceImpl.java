@@ -3,17 +3,27 @@ package com.empresa.cache.services.impl;
 import static com.empresa.core.utils.DataUtils.getId;
 
 import com.empresa.cache.dtos.requests.PosCostRequest;
-import com.empresa.cache.dtos.requests.PostCostMinRequest;
-import com.empresa.cache.dtos.response.PosCostMin;
+import com.empresa.cache.dtos.response.PosCostMinBase;
 import com.empresa.cache.model.PosCostHash;
-import com.empresa.cache.model.PosCostMinHash;
-import com.empresa.cache.repositories.CachePosCostMinRepository;
+import com.empresa.cache.model.PosHash;
 import com.empresa.cache.repositories.CachePosCostRepository;
+import com.empresa.cache.repositories.CachePosRepository;
 import com.empresa.cache.services.CrudExtraService;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.core.dtos.responses.PosCostBHash;
+import com.empresa.core.exceptions.NotFoundServiceException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.data.util.StreamUtils;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -23,8 +33,8 @@ import reactor.core.scheduler.Schedulers;
 @AllArgsConstructor
 public class CrudPosCostServiceImpl implements CrudExtraService<PosCostHash, PosCostRequest> {
     public static final String COST = "COST";
+    private final CachePosRepository cachePosRepository;
     private final CachePosCostRepository cachePosCostRepository;
-    private final CachePosCostMinRepository cachePosCostMinRepository;
 
     @Override
     public Mono<ApiResponse<PosCostHash>> getById(String id) {
@@ -58,13 +68,18 @@ public class CrudPosCostServiceImpl implements CrudExtraService<PosCostHash, Pos
     }
 
     @Override
-    public Mono<ApiResponse<PosCostHash>> putCache(PosCostRequest posHash, String id) {
-        var a = getPosCostHash(posHash);
+    public Mono<ApiResponse<PosCostHash>> putCache(PosCostPutRequest posHash, String id) {
         Mono<ApiResponse<PosCostHash>> posCostHashMono = getById(id)
+                .switchIfEmpty(Mono.error(new NotFoundServiceException()))
+                .flatMap( o-> {
+                    o.getData().setCost(posHash.getCost());
+                    return Mono.fromSupplier(()-> this.cachePosCostRepository.save(o.getData()))
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .publishOn(Schedulers.boundedElastic());
+                }).map(ApiResponse::new);
+        return posCostHashMono
                 .publishOn(Schedulers.boundedElastic())
                 .subscribeOn(Schedulers.boundedElastic());
-        return posCostHashMono.switchIfEmpty(Mono.fromSupplier(()->cachePosCostRepository.save(a)).publishOn(Schedulers.boundedElastic())
-                .subscribeOn(Schedulers.boundedElastic()).map(ApiResponse::new));
     }
 
     @Override
@@ -73,25 +88,65 @@ public class CrudPosCostServiceImpl implements CrudExtraService<PosCostHash, Pos
     }
 
     @Override
-    public Optional<ApiResponse<PosCostHash>> getPointB(String idPointA, String idPointB) {
-        return cachePosCostRepository.findById(getId(COST,idPointA, idPointB)).map(ApiResponse::new);
+    public Optional<ApiResponse<List<PosCostBHash>>> getPointA(String idPointA) {
+        return Optional.of(new ApiResponse<>(getListApiResponse(idPointA, () -> Stream.of(cachePosCostRepository.findAllByIdPointB(idPointA)).flatMap(List::parallelStream).toList())));
+    }
+
+    private List<PosCostBHash> getListApiResponse(String idPoint, Supplier<? extends List<PosCostHash>> oall) {
+        PosHash point = cachePosRepository
+                .findById(idPoint)
+                .orElseThrow(NotFoundServiceException::new);
+        var id = CompletableFuture
+                .supplyAsync(oall)
+                .thenApplyAsync((w)->w
+                        .parallelStream()
+                        .map(o-> CompletableFuture
+                                .supplyAsync(()-> getIds(w))
+                                .thenApplyAsync(this.cachePosRepository::findAllById)
+                                .thenApplyAsync(t -> {
+                    PosHash posCostHashA = getPosCostHashA(point, t);
+                    PosHash posCostHashB = getPosCostHashB(o, t);
+                    return new PosCostBHash(o.getId(), o.getIdPointA(), posCostHashA.getPoint(), o.getIdPointB(), posCostHashB.getPoint(), o.getCost());
+                                }))
+                        .toList());
+
+        var array = id.join().parallelStream().toArray(CompletableFuture[]::new);
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.allOf(array);
+        voidCompletableFuture.join();
+        return Arrays.stream(array).parallel().map(CrudPosCostServiceImpl::getCostBHash).toList();
+    }
+
+    @SneakyThrows
+    private static PosCostBHash getCostBHash(CompletableFuture<PosCostBHash> o) {
+        return o.get();
+    }
+
+    private static Set<String> getIds(List<PosCostHash> allByIdPointA) {
+        var idsAll = allByIdPointA.parallelStream().map(PosCostHash::getIdPointA)
+                .collect(Collectors.toSet());
+        idsAll.addAll(allByIdPointA.parallelStream().map(PosCostHash::getIdPointB).collect(Collectors.toSet()));
+        return idsAll;
+    }
+
+    private static PosHash getPosCostHashA(PosHash o, Iterable<PosHash> allById) {
+        return StreamUtils.createStreamFromIterator(allById.iterator()).filter(i -> i.getId().equalsIgnoreCase(o.getId())).findFirst().orElse(null);
+    }
+    private static PosHash getPosCostHashB(PosCostHash o, Iterable<PosHash> allById) {
+        PosHash posHash = StreamUtils.createStreamFromIterator(allById.iterator())
+                .filter(i -> i.getId().equalsIgnoreCase(o.getIdPointB()))
+                .findFirst()
+                .orElse(null);
+        if (posHash == null)
+            System.out.printf("posHash = 000 %s%n", o.getIdPointA() + o.getIdPointB());
+        return posHash;
     }
 
     @Override
-    public ApiResponse<PosCostMin> getPointsMin(String idPointA, String idPointB) {
-        List<PosCostHash> outgoing = cachePosCostRepository.findAllByIdPointA(idPointA);
-        List<PosCostHash> incoming = cachePosCostRepository.findAllByIdPointB(idPointB);
-        return new ApiResponse<>(new PosCostMin(outgoing, incoming));
-    }
-
-    @Override
-    public ApiResponse<PosCostMinHash> postCostMin(PostCostMinRequest postCostMinRequest) {
-        PosCostMinHash entity = new PosCostMinHash(postCostMinRequest, getId("MINTCOST", postCostMinRequest.getIdPointA(), postCostMinRequest.getIdPointB()));
-        return new ApiResponse<>(cachePosCostMinRepository.save(entity));
-    }
-
-    @Override
-    public Optional<ApiResponse<PosCostMinHash>> getPointMinBase(String id, String idB) {
-        return cachePosCostMinRepository.findById(getId("MINTCOST", id, idB)).map(ApiResponse::new);
+    public ApiResponse<PosCostMinBase> getPointMinBase(String idPointA, String idPointB) {
+        List<PosCostBHash> outgoing = this.getListApiResponse(idPointA, ()-> Stream.of(cachePosCostRepository.findAllByIdPointAOrIdPointA(idPointA,idPointB)).flatMap(List::parallelStream
+        ).collect(Collectors.toSet()).stream().toList());
+        List<PosCostBHash> incoming = this.getListApiResponse(idPointB, ()-> Stream.of(cachePosCostRepository.findAllByIdPointBOrIdPointB(idPointA,idPointB)).flatMap(List::parallelStream
+        ).collect(Collectors.toSet()).stream().toList());
+        return new ApiResponse<>(new PosCostMinBase(outgoing, incoming));
     }
 }

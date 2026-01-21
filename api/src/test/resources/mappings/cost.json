@@ -1,0 +1,112 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-pos/PosCost/byId/1"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/GetResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-pos/PosCost"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/GetAllResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/ms-pos/PosCost"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/POSTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "urlPath": "/ms-pos/PosCost"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/PUTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/ms-pos/PosCost",
+        "queryParameters": {
+          "id": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-pos/PosCost/pointA",
+        "queryParameters": {
+          "idPointA": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/pointBResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-pos/PosCost/pointMin",
+        "queryParameters": {
+          "idA": {
+            "equalTo": "1"
+          },
+          "idB": {
+            "equalTo": "2"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/pointMinBaseResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

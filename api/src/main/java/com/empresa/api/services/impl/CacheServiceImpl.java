@@ -1,8 +1,10 @@
-package com.empresa.pos.services.impl;
+package com.empresa.api.services.impl;
 
-import com.empresa.pos.dtos.requests.PosHashRequest;
-import com.empresa.pos.dtos.response.PosHash;
-import com.empresa.pos.services.CachePosClientService;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
+import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.api.dtos.requests.PosHashRequest;
+import com.empresa.api.dtos.response.PosHash;
+import com.empresa.api.services.CachePosClientService;
 import com.empresa.core.services.CrudService;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -14,35 +16,36 @@ import reactor.core.scheduler.Schedulers;
 
 @Service
 @AllArgsConstructor
-public class CacheServiceImpl implements CrudService<PosHash, PosHashRequest> {
+public class CacheServiceImpl implements CrudService<PosHash, PosHashRequest, PostHashPutRequest> {
     public static final Scheduler SCHEDULER = Schedulers.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor());
     private final CachePosClientService cachePosRepository;
 
     @Override
-    public Mono<PosHash> getById(String id) {
+    public Mono<ApiResponse<PosHash>> getById(String id) {
         return Mono.fromCallable(()->cachePosRepository.findById(id))
                 .publishOn(SCHEDULER)
-                .subscribeOn(SCHEDULER);
+                .subscribeOn(SCHEDULER).map(ApiResponse::new);
     }
 
     @Override
-    public Mono<PosHash> createCache(PosHashRequest id) {
-        return cachePosRepository.save(id);
+    public Mono<ApiResponse<PosHash>> createCache(PosHashRequest id) {
+        return cachePosRepository.save(id).map(ApiResponse::new);
     }
 
     @Override
-    public Mono<PosHash> delete(String id) {
-        return cachePosRepository.deleteById(id);
+    public Mono<ApiResponse<PosHash>> delete(String id) {
+        return cachePosRepository.deleteById(id).map(ApiResponse::new);
     }
 
     @Override
-    public Mono<PosHash> putCache(PosHashRequest posHash, String id) {
-        return cachePosRepository.update(posHash);
+    public Mono<ApiResponse<PosHash>> putCache(PostHashPutRequest posHash, String id) {
+        return cachePosRepository.update(posHash, id).map(ApiResponse::new);
     }
 
     @Override
-    public Mono<List<PosHash>> getAll() {
+    public Mono<ApiResponse<List<PosHash>>> getAll() {
         return Mono.fromCallable(cachePosRepository::findAll)
-                .subscribeOn(Schedulers.fromExecutorService(Executors.newVirtualThreadPerTaskExecutor()));
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(ApiResponse::new);
     }
 }

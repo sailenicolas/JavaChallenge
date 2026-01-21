@@ -1,12 +1,17 @@
 package com.empresa.core.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
@@ -32,59 +37,67 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+
 public class ExceptionMVCHandler extends ResponseEntityExceptionHandler {
+    Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<Object> handlerServiceException(ServiceException e){
         return ResponseEntity.status(e.getHttpStatusCode())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(new ApiError(e));
     }
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Object> handleExceptions(Exception ex, WebRequest request) throws Exception {
-        return ResponseEntity.status(500).body(new ApiError());
+    public ResponseEntity<Object> handleExceptions(Exception ex, HttpServletRequest request) {
+        logger.debug(" ERROR {}, Type {}", ExceptionUtils.getRootCauseMessage(ex.getCause()), ExceptionUtils.getMessage(ex));
+        return ResponseEntity.status(500)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ApiError());
     }
 
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<Object> handlerWebClientResponseException(WebClientResponseException e){
         return ResponseEntity.status(e.getStatusCode())
+                .contentType(MediaType.APPLICATION_JSON)
                 .body(e.getResponseBodyAsString());
     }
     @ExceptionHandler(WebClientRequestException.class)
     public ResponseEntity<Object> handlerWebClientRequestException(WebClientRequestException e){
-        return ResponseEntity.status(500).body(new ApiError());
+        return ResponseEntity.status(500).body(new ApiError("Error Call", "Call not Made"));
     }
     @Override
     protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleHttpRequestMethodNotSupported(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s: %s".formatted(ex.getMethod(), "Not supported")));
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleHttpMediaTypeNotSupported(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s: %s".formatted(ex.getContentType(), "Not supported")));
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMediaTypeNotAcceptable(HttpMediaTypeNotAcceptableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleHttpMediaTypeNotAcceptable(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s: %s".formatted(ex.getHeaders().getContentType(), "Not Accepted")));
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingPathVariable(MissingPathVariableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleMissingPathVariable(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s".formatted("Missing Path Variable")));
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestParameter(MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleMissingServletRequestParameter(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s: %s".formatted(ex.getParameterName(), "Missing parameter")));
     }
 
     @Override
     protected ResponseEntity<Object> handleMissingServletRequestPart(MissingServletRequestPartException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleMissingServletRequestPart(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s: %s".formatted(ex.getRequestPartName(), "Missing parameter")));
     }
 
     @Override
     protected ResponseEntity<Object> handleServletRequestBindingException(ServletRequestBindingException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleServletRequestBindingException(ex, headers, status, request);
+        return ResponseEntity.status(status).headers(headers).body(new ApiError("Error Call", "%s: %s".formatted(ex.getBody().getDetail(), "Binding Exception")));
     }
 
     @Override
@@ -94,62 +107,67 @@ public class ExceptionMVCHandler extends ResponseEntityExceptionHandler {
         ApiError body = new ApiError();
         body.setMessage("Validation Error Call");
         body.setErrors(collect.parallelStream().toList());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(body);
+        return ResponseEntity.status(status).headers(headers).body(body);
     }
 
     @Override
     protected ResponseEntity<Object> handleHandlerMethodValidationException(HandlerMethodValidationException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleHandlerMethodValidationException(ex, headers, status, request);
+        Set<String> collect = ex.getParameterValidationResults().parallelStream()
+                .map(o -> "%s: %s".formatted(o.getMethodParameter(), o.getResolvableErrors())).collect(Collectors.toSet());
+        ApiError body = new ApiError();
+        body.setMessage("Validation Error Call");
+        body.setErrors(collect.parallelStream().toList());
+        return ResponseEntity.status(status).headers(headers).body(body);
     }
 
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleNoHandlerFoundException(ex, headers, status, request);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Not Found"));
     }
 
     @Override
     protected ResponseEntity<Object> handleNoResourceFoundException(NoResourceFoundException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleNoResourceFoundException(ex, headers, status, request);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Not Found"));
     }
 
     @Override
     protected ResponseEntity<Object> handleAsyncRequestTimeoutException(AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleAsyncRequestTimeoutException(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Timeout"));
     }
 
     @Override
     protected ResponseEntity<Object> handleErrorResponseException(ErrorResponseException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleErrorResponseException(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Internal Error"));
     }
 
     @Override
     protected ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleMaxUploadSizeExceededException(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Size Exceeded"));
     }
 
     @Override
     protected ResponseEntity<Object> handleConversionNotSupported(ConversionNotSupportedException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleConversionNotSupported(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Internal Error"));
     }
 
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleTypeMismatch(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Type unexpected"));
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleHttpMessageNotReadable(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Message Not Readable"));
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        return super.handleHttpMessageNotWritable(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Message Not Writable"));
     }
 
     @Override
     protected ResponseEntity<Object> handleMethodValidationException(MethodValidationException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-        return super.handleMethodValidationException(ex, headers, status, request);
+        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(new ApiError("Error Call", "Validation Method"));
     }
 
     @Override

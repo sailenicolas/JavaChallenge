@@ -1,0 +1,73 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/Pos/byId/1"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "pos/GetResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/Pos"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "pos/GetAllResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/ms-cached/Pos"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "pos/POSTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "urlPath": "/ms-cached/Pos"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "pos/PUTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/ms-cached/Pos",
+        "queryParameters": {
+          "id": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

@@ -2,10 +2,11 @@ package com.empresa.pos.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.pos.dtos.requests.PosCostRequest;
 import com.empresa.pos.dtos.requests.PosHashRequest;
 import com.empresa.pos.dtos.response.PosCostHash;
@@ -102,7 +103,7 @@ class PosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link CachePosCostController#put(PosCostRequest, String)}
+     * Class under test: {@link CachePosCostController#put(PosCostPutRequest, String)}
      */
     @Test
     void put() {
@@ -147,22 +148,22 @@ class PosCostControllerTest {
                 );
     }
     /**
-     * Class under test: {@link CachePosCostController#getPointB(String, String)}
+     * Class under test: {@link CachePosCostController#getPointB(String)}
      */
     @Test
     void getPointB() {
-        when(this.service.getPointB(any(), anyString())).thenReturn(Mono.just(new PosCostHash("1", "1", "1", new BigDecimal("1"))));
+        when(this.service.getPointB(any())).thenReturn(Mono.just(List.of(new PosCostBHash("1","1", "1", "1", "1", new BigDecimal("1")))).map(ApiResponse::new));
         this.webTestClient.get().uri((a)->a
-                        .pathSegment(POS, "pointB")
-                        .queryParam("id", "1")
-                        .queryParam("idB", "2").build())
+                        .pathSegment(POS, "pointA")
+                        .queryParam("idPointA", "1")
+                        .build())
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {
+                .expectBody(new ParameterizedTypeReference<ApiResponse<List<PosCostBHash>>>() {
                 })
                 .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getId()).isEqualTo("1");
+                            assertThat(a.getResponseBody().getData().getFirst().getId()).isEqualTo("1");
                         }
                 );
     }

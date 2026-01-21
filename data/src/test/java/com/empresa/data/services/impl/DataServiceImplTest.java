@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 class DataServiceImplTest {
@@ -27,15 +29,19 @@ class DataServiceImplTest {
 
     @Test
     void getById() {
-        when(cachePosCostRepository.findById(any())).thenReturn(Optional.of(new CreditsModel()));
-        Optional<CreditsModel> credits = service.getById("1");
-        assertThat(credits).isPresent();
+        when(cachePosCostRepository.findById(any(String.class))).thenReturn(Mono.justOrEmpty(new CreditsModel()));
+        Mono<CreditsModel> credits = service.getById("1");
+        StepVerifier.create(credits).assertNext((o)->{
+            assertThat(o).isNotNull();
+        }).verifyComplete();
     }
 
     @Test
     void createCredits() {
-        when(cachePosCostRepository.save(any())).thenReturn(new CreditsModel());
-        CreditsModel credits = service.createCredits(new CreditsModel());
-        assertThat(credits).isNotNull();
+        when(cachePosCostRepository.save(any())).thenReturn(Mono.just(new CreditsModel()));
+        Mono<CreditsModel> credits = service.createCredits(new CreditsModel());
+        StepVerifier.create(credits).assertNext((o)->{
+            assertThat(o).isNotNull();
+        }).verifyComplete();
     }
 }

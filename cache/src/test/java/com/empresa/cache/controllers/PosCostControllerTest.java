@@ -8,13 +8,13 @@ import static org.mockito.Mockito.when;
 import com.empresa.cache.dtos.requests.PosCostRequest;
 import com.empresa.cache.dtos.requests.PosHashRequest;
 import com.empresa.cache.dtos.requests.PostCostMinRequest;
-import com.empresa.cache.dtos.response.PosCostMin;
+import com.empresa.cache.dtos.response.PosCostMinBase;
 import com.empresa.cache.model.PosCostHash;
 import com.empresa.cache.model.PosCostMinHash;
-import com.empresa.cache.model.PosHash;
 import com.empresa.cache.services.CrudExtraService;
-import com.empresa.cache.services.impl.CrudServiceImpl;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,7 +108,7 @@ class PosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link PosCostController#put(PosCostRequest, String)}
+     * Class under test: {@link PosCostController#put(PosCostPutRequest, String)}
      */
     @Test
     void put() {
@@ -116,7 +116,7 @@ class PosCostControllerTest {
         this.webTestClient.put().uri((a)->a
                         .pathSegment(POS)
                         .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PosHashRequest()))
+                .body(BodyInserters.fromValue(new PosCostPutRequest()))
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
@@ -153,76 +153,36 @@ class PosCostControllerTest {
                 );
     }
     /**
-     * Class under test: {@link PosCostController#getPointB(String, String)}
+     * Class under test: {@link PosCostController#getPointB(String)}
      */
     @Test
     void getPointB() {
-        when(this.service.getPointB(any(), anyString())).thenReturn(Optional.of(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
+        ApiResponse<List<PosCostBHash>> tApiResponse = new ApiResponse<>(List.of(new PosCostBHash("1","1", "1", "1", "1", new BigDecimal("1"))));
+        when(this.service.getPointA(any())).thenReturn(Optional.of(tApiResponse));
         this.webTestClient.get().uri((a)->a
-                        .pathSegment(POS, "pointB")
-                        .queryParam("id", "1")
-                        .queryParam("idB", "2").build())
+                        .pathSegment(POS, "pointA")
+                        .queryParam("idA", "1")
+                        .build())
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {
+                .expectBody(new ParameterizedTypeReference<ApiResponse<List<PosCostBHash>>>() {
                 })
                 .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getId()).isEqualTo("1");
+                            assertThat(a.getResponseBody().getData().getFirst().getId()).isEqualTo("1");
                         }
                 );
     }
 
-    /**
-     * Class under test: {@link PosCostController#getPointsMin(String, String)}
-     */
-    @Test
-    void getPointsMin() {
-        when(this.service.getPointsMin(any(), anyString())).thenReturn(new ApiResponse<>(new PosCostMin(Collections.singletonList(new PosCostHash("1", "1", "1", new BigDecimal("1"))), Collections.singletonList(new PosCostHash()))));
-        this.webTestClient.get().uri((a)->a
-                        .pathSegment(POS, "pointMin")
-                        .queryParam("id", "1")
-                        .queryParam("idB", "2").build())
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostMin>>() {
-                })
-                .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().outgoing().getFirst().getId()).isEqualTo("1");
-                        }
-                );
-    }
+
 
     /**
-     * Class under test: {@link PosCostController#postPointMin(PostCostMinRequest)}
+     * Class under test: {@link PosCostController#getPointMin(String, String)}
      */
     @Test
-    void postPointMin() {
-        when(this.service.postCostMin(any())).thenReturn(new ApiResponse<>(new PosCostMinHash(new PostCostMinRequest(Collections.singletonList(new PosCostHash("1", "1", "1", new BigDecimal("1"))), new BigDecimal("1"), "1", "1"), "1")));
-        this.webTestClient.post().uri((a)->a
-                        .pathSegment(POS, "pointMin")
-                        .queryParam("id", "1")
-                        .queryParam("idB", "2").build())
-                .body(BodyInserters.fromValue(new PostCostMinRequest(new ArrayList<>(Collections.singleton(new PosCostHash())), new BigDecimal("1"), "", "")))
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostMinHash>>() {
-                })
-                .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getPoints().getFirst().getId()).isEqualTo("1");
-                        }
-                );
-    }
-
-    /**
-     * Class under test: {@link PosCostController#postPointBase(String, String)}
-     */
-    @Test
-    void postPointBase() {
-        Optional<ApiResponse<PosCostMinHash>> t = Optional.of(new PosCostMinHash(new PostCostMinRequest(Collections.singletonList(new PosCostHash("1", "1", "1", new BigDecimal("1"))), new BigDecimal("1"), "1", "1"), "1")).map(ApiResponse::new);
-        when(this.service.getPointMinBase(any(), anyString())).thenReturn(t);
+    void getPointMinBase() {
+        when(this.service.getPointMinBase(any(), anyString())).thenReturn(new ApiResponse<>(new PosCostMinBase(Collections.singletonList(new PosCostBHash("1", "1","1","1", "1", new BigDecimal("1"))), Collections.singletonList(new PosCostBHash()))));
+        Optional<ApiResponse<PosCostMinHash>> t = Optional.of(new PosCostMinHash(new PostCostMinRequest(Collections.singletonList(new PosCostBHash("1", "1","1","1", "1", new BigDecimal("1"))), new BigDecimal("1"), "1", "1"), "1")).map(ApiResponse::new);
         this.webTestClient.get().uri((a)->a
                         .pathSegment(POS, "pointMinBase")
                         .queryParam("idA", "1")
@@ -230,10 +190,10 @@ class PosCostControllerTest {
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostMinHash>>() {
+                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostMinBase>>() {
                 })
                 .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getPoints().getFirst().getId()).isEqualTo("1");
+                    assertThat(a.getResponseBody().getData().outgoing().getFirst().getId()).isEqualTo("1");
                         }
                 );
     }

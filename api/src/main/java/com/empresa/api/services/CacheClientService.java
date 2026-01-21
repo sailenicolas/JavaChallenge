@@ -1,13 +1,15 @@
-package com.empresa.pos.services;
+package com.empresa.api.services;
 
-import com.empresa.pos.dtos.requests.PosCostRequest;
-import com.empresa.pos.dtos.response.PosCostHash;
-import com.empresa.pos.dtos.response.PosCostMinHash;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.api.dtos.requests.PosCostRequest;
+import com.empresa.api.dtos.response.PosCostHash;
+import com.empresa.api.dtos.response.PosCostMinHash;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import java.util.List;
 import reactor.core.publisher.Mono;
 
 public interface CacheClientService {
-    PosCostHash getPointB(String idPointA, String idPointB);
+    List<PosCostBHash> getPointB(String idPointA);
 
     Mono<PosCostHash> save(PosCostRequest a);
 
@@ -19,5 +21,5 @@ public interface CacheClientService {
 
     PosCostHash findById(String id);
 
-    Mono<PosCostHash> update(PosCostRequest posHash);
+    Mono<PosCostHash> update(PosCostPutRequest posHash, String id);
 }

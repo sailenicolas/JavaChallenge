@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.empresa.cache.dtos.requests.PosHashRequest;
 import com.empresa.cache.model.PosHash;
 import com.empresa.cache.services.impl.CrudServiceImpl;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +99,7 @@ class POSControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#put(PosHashRequest, String)}
+     * Class under test: {@link POSController#put(PostHashPutRequest, String)}
      */
     @Test
     void put() {
@@ -106,7 +107,7 @@ class POSControllerTest {
         this.webTestClient.put().uri((a)->a
                         .pathSegment("Pos")
                         .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PosHashRequest()))
+                .body(BodyInserters.fromValue(new PostHashPutRequest("hello")))
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()

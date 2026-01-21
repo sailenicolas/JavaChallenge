@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:testdb;MODE=PostgreSQL}
+    url: ${SPRING_DATASOURCE_URL:r2dbc:h2:mem:testdb;MODE=PostgreSQL}
     driver-class-name: org.h2.Driver
     username: test
     password: test
@@ -8,3 +8,9 @@ spring:
     hibernate:
       ddl-auto: none
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  r2dbc:
+    url: ${SPRING_DATASOURCE_URL:r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL}
+    password: test
+    username: test
+server:
+  port: 0

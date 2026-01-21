@@ -1,0 +1,146 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/PosCost/byId/1"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/GetResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/PosCost"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/GetAllResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/ms-cached/PosCost"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/POSTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "PUT",
+        "urlPath": "/ms-cached/PosCost"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/PUTResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/ms-cached/PosCost",
+        "queryParameters": {
+          "id": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/PosCost/pointA",
+        "queryParameters": {
+          "idA": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/pointBResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/PosCost/pointMin",
+        "queryParameters": {
+          "idA": {
+            "equalTo": "1"
+          },
+          "idB": {
+            "equalTo": "2"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/pointMinResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "urlPath": "/ms-cached/PosCost/pointMinBase",
+        "queryParameters": {
+          "idA": {
+            "equalTo": "1"
+          },
+          "idB": {
+            "equalTo": "2"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/pointMinBaseResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/ms-cached/PosCost/pointMin"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "cost/PostPointMinResponseOk.json",
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      }
+    }
+  ]
+}

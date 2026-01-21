@@ -1,7 +1,8 @@
-package com.empresa.pos.services;
+package com.empresa.api.services;
 
-import com.empresa.pos.dtos.requests.PosHashRequest;
-import com.empresa.pos.dtos.response.PosHash;
+import com.empresa.api.dtos.requests.PosHashRequest;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
+import com.empresa.api.dtos.response.PosHash;
 import java.util.List;
 import reactor.core.publisher.Mono;
 
@@ -14,5 +15,5 @@ public interface CachePosClientService {
 
     List<PosHash> findAll();
 
-    Mono<PosHash> update(PosHashRequest posHash);
+    Mono<PosHash> update(PostHashPutRequest posHash, String id);
 }

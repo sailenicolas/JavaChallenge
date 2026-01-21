@@ -1,4 +1,4 @@
-package com.empresa.pos.dtos.response;
+package com.empresa.api.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import java.io.Serial;
@@ -8,11 +8,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class CreditsResponse implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

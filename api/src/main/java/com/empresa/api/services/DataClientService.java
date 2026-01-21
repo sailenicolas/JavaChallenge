@@ -1,7 +1,7 @@
-package com.empresa.pos.services;
+package com.empresa.api.services;
 
-import com.empresa.pos.dtos.requests.CreditsClientRequest;
-import com.empresa.pos.dtos.response.CreditsResponse;
+import com.empresa.api.dtos.requests.CreditsClientRequest;
+import com.empresa.api.dtos.response.CreditsResponse;
 import reactor.core.publisher.Mono;
 
 public interface DataClientService {

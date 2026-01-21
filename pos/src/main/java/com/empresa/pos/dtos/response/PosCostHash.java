@@ -15,10 +15,4 @@ public class PosCostHash {
     private String idPointA;
     private String idPointB;
     private BigDecimal cost;
-
-    public PosCostHash(String idPointA, String idPointB, BigDecimal cost) {
-        this.idPointA = idPointA;
-        this.idPointB = idPointB;
-        this.cost = cost;
-    }
 }

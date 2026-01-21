@@ -1,9 +1,9 @@
 package com.empresa.pos.services.impl;
 
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.clients.CachePosClient;
 import com.empresa.pos.dtos.requests.PosHashRequest;
-import com.empresa.pos.dtos.response.PosCostHash;
 import com.empresa.pos.dtos.response.PosHash;
 import com.empresa.pos.services.CachePosClientService;
 import java.util.List;
@@ -37,7 +37,7 @@ public class CachePosClientServiceImpl implements CachePosClientService {
     }
 
     @Override
-    public Mono<PosHash> update(PosHashRequest posHash) {
-        return this.cachePosClient.update(posHash).map(ApiResponse::getData);
+    public Mono<PosHash> update(PosCostPutRequest posHash, String id) {
+        return this.cachePosClient.update(posHash, id).map(ApiResponse::getData);
     }
 }

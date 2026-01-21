@@ -1,13 +1,15 @@
-package com.empresa.pos.services.impl;
+package com.empresa.api.services.impl;
 
-import com.empresa.pos.dtos.requests.CreditsClientRequest;
-import com.empresa.pos.dtos.requests.CreditsRequest;
-import com.empresa.pos.dtos.requests.PosHashRequest;
-import com.empresa.pos.dtos.response.CreditsResponse;
-import com.empresa.pos.dtos.response.PosHash;
+import com.empresa.api.dtos.requests.CreditsClientRequest;
+import com.empresa.api.dtos.requests.CreditsRequest;
+import com.empresa.api.dtos.requests.PosHashRequest;
+import com.empresa.api.dtos.response.CreditsResponse;
+import com.empresa.api.dtos.response.PosHash;
+import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.services.CrudService;
-import com.empresa.pos.services.DataClientService;
-import com.empresa.pos.services.DataService;
+import com.empresa.api.services.DataClientService;
+import com.empresa.api.services.DataService;
+import com.empresa.core.services.GetService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.AllArgsConstructor;
@@ -22,7 +24,7 @@ public class DataServiceImpl implements DataService {
     public static final ExecutorService EXECUTOR_SERVICE = Executors.newVirtualThreadPerTaskExecutor();
     public static final Scheduler SCHEDULER = Schedulers.fromExecutorService(EXECUTOR_SERVICE);
     private final DataClientService dataClientService;
-    private final CrudService<PosHash, PosHashRequest> clientService;
+    private final GetService<PosHash> clientService;
     @Override
     public Mono<CreditsResponse> getById(String id) {
         return Mono.fromCallable(()->dataClientService.getById(id))
@@ -32,10 +34,10 @@ public class DataServiceImpl implements DataService {
 
     @Override
     public Mono<CreditsResponse> createCredits(CreditsRequest id) {
-        Mono<PosHash> byId = clientService.getById(id.getPointId());
+        Mono<ApiResponse<PosHash>> byId = clientService.getById(id.getPointId());
         return byId.flatMap(o -> {
                     CreditsClientRequest creditsClientRequest = new CreditsClientRequest(id);
-                    creditsClientRequest.setPointName(o.getPoint());
+                    creditsClientRequest.setPointName(o.getData().getPoint());
                    return this.dataClientService.create(creditsClientRequest);
                 }
         );

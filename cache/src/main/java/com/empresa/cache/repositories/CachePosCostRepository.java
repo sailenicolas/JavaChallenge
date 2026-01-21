@@ -11,5 +11,8 @@ import org.springframework.stereotype.Repository;
 public interface CachePosCostRepository extends CrudRepository<PosCostHash, String>, PagingAndSortingRepository<PosCostHash, String> {
     List<PosCostHash> findAllByIdPointA(String idPointA);
 
-    List<PosCostHash> findAllByIdPointB(String idPointB);
+    List<PosCostHash> findAllByIdPointB(String id);
+    List<PosCostHash> findAllByIdPointAOrIdPointA(String idPointA1, String idPointA2);
+
+    List<PosCostHash> findAllByIdPointBOrIdPointB(String idPointB1, String idPointB2);
 }

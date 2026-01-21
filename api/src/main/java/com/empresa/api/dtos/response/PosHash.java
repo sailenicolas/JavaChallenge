@@ -1,4 +1,4 @@
-package com.empresa.pos.dtos.response;
+package com.empresa.api.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

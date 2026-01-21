@@ -1,10 +1,10 @@
 package com.empresa.data.services;
 
 import com.empresa.data.models.CreditsModel;
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 public interface DataService {
-    Optional<CreditsModel> getById(String id);
+    Mono<CreditsModel> getById(String id);
 
-    CreditsModel createCredits(CreditsModel id);
+    Mono<CreditsModel> createCredits(CreditsModel id);
 }

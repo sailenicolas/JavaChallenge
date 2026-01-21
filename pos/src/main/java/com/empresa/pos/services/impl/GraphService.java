@@ -1,7 +1,10 @@
 package com.empresa.pos.services.impl;
 
+import com.empresa.core.dtos.responses.PosCostBHash;
+import com.empresa.core.exceptions.ServiceException;
 import com.empresa.pos.dtos.response.PosCostHash;
 import com.empresa.pos.dtos.response.PosCostMin;
+import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashSet;
@@ -9,96 +12,106 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.shortestpath.BidirectionalDijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.jgrapht.graph.SimpleWeightedGraph;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class GraphService {
 
-    public Graph<String, DefaultWeightedEdge> buildBidirectionalGraph(String source, String target, PosCostMin posCostMin) {
+    private Graph<String, DefaultWeightedEdge> buildBidirectionalGraph(String source, String target, PosCostMin posCostMin) {
 
         Graph<String, DefaultWeightedEdge> graph =
-                new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
-
+                new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
         graph.addVertex(source);
         graph.addVertex(target);
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+            Queue<PosCostBHash> frontierSource = new ArrayDeque<>(posCostMin.outgoing());
+            while (!frontierSource.isEmpty()) {
+                // expandir un nivel desde el origen
+                PosCostBHash s = frontierSource.poll();
+                if (s != null) {
+                    boolean addVertex = graph.addVertex(s.getIdPointB());
+                    log.debug("addVertex = " + addVertex + " " + s);
+                    if (addVertex || graph.containsVertex(s.getIdPointB())) {
+                        DefaultWeightedEdge edge = graph.addEdge(s.getIdPointA(), s.getIdPointB());
+                        if (edge != null)
+                            graph.setEdgeWeight(edge, s.getCost().doubleValue());
+                        else
+                            log.debug("edge = null {}", s);
+                    } else {
+                        log.debug("addVertex = {} {}", false, s);
+                    }
+                }
 
-        Queue<String> frontierSource = new ArrayDeque<>();
-        Queue<String> frontierTarget = new ArrayDeque<>();
-
-        frontierSource.add(source);
-        frontierTarget.add(target);
-
-        Set<String> visitedSource = new HashSet<>();
-        Set<String> visitedTarget = new HashSet<>();
-
-        while (!frontierSource.isEmpty() && !frontierTarget.isEmpty()) {
-        // expandir un nivel desde el origen
-            String s = frontierSource.poll();
-            if (visitedSource.add(s)) {
-                loadEdgesFromNode(posCostMin.outgoing(), graph, s, frontierSource);
             }
-
-        // expandir un nivel desde el destino
-            String t = frontierTarget.poll();
-            if (visitedTarget.add(t)) {
-                loadEdgesFromNodeReverse(posCostMin.incoming(), graph, t, frontierTarget);
+        }).exceptionally((a)->{
+            log.debug("Hello {} {}", ExceptionUtils.getRootCauseMessage(a), ExceptionUtils.getMessage(a));
+            return null;
+        });
+        CompletableFuture<Void> voidCompletableFuture1 = CompletableFuture.runAsync(() -> {
+            Queue<PosCostBHash> frontierTarget = new ArrayDeque<>(posCostMin.incoming());
+            while (!frontierTarget.isEmpty()) {
+                // expandir un nivel desde el destino
+                PosCostBHash t = frontierTarget.poll();
+                if (t != null) {
+                    boolean addVertex = graph.addVertex(t.getIdPointA());
+                    if (addVertex || graph.containsVertex(t.getIdPointA())) {
+                        DefaultWeightedEdge edge = graph.addEdge(t.getIdPointB(), t.getIdPointA());
+                        if (edge != null)
+                            graph.setEdgeWeight(edge, t.getCost().doubleValue());
+                        else
+                            log.debug("edge = null {}", t);
+                    } else {
+                        log.debug("addVertex = " + false + " " + t);
+                    }
+                }
             }
-            // condición de intersección
-            if (!Collections.disjoint(visitedSource, visitedTarget)) {
-                // ya se tocó la mitad del otro lado
-                return graph;
-            }
-        }
-
+        }).exceptionally((a)->{
+            log.debug("Hello {} {}", ExceptionUtils.getRootCauseMessage(a), ExceptionUtils.getMessage(a));
+            return null;
+        });
+        CompletableFuture.allOf(voidCompletableFuture, voidCompletableFuture1).join();
         return graph;
     }
 
-    /** Cargar edges salientes desde ORIGIN (originId = node) */
-    private void loadEdgesFromNode(List<PosCostHash> outgoing,
-            Graph<String, DefaultWeightedEdge> graph,
-            String node,
-            Queue<String> frontier) {
-        for (PosCostHash e : outgoing) {
-            String to = e.getIdPointB();
-            if (!Objects.equals(node, to)) {
-                graph.addVertex(to);
-                DefaultWeightedEdge edge = graph.addEdge(node, to);
-                graph.setEdgeWeight(edge, e.getCost().doubleValue());
-            }
-            frontier.add(to);
-        }
-    }
-
-    /** Cargar edges entrantes hacia DESTINO (destId = node) */
-    private void loadEdgesFromNodeReverse(List<PosCostHash> incoming,
-            Graph<String, DefaultWeightedEdge> graph,
-            String node,
-            Queue<String> frontier) {
-        for (PosCostHash e : incoming) {
-            String from = e.getIdPointA();
-            if (!Objects.equals(node, from)) {
-                graph.addVertex(from);
-                DefaultWeightedEdge edge = graph.addEdge(from, node);
-                if (edge != null)
-                    graph.setEdgeWeight(edge, e.getCost().doubleValue());
-
-            }
-            frontier.add(from);
-        }
-    }
     public GraphPath<String, DefaultWeightedEdge> shortestPath(String source, String target, PosCostMin posCostMin) {
         Graph<String, DefaultWeightedEdge> graph =
                 buildBidirectionalGraph(source, target, posCostMin);
+        if (!graph.containsVertex(source)||!graph.containsVertex(target) || !graph.getType().isWeighted()){
+            throw new ServiceException("Hello", "Method", HttpStatus.BAD_REQUEST);
+        }
+        for (DefaultWeightedEdge weightedEdge : graph.edgeSet()) {
+            System.out.println("weightedEdge1 = " + graph.getEdgeSource(weightedEdge)+" = " + graph.getEdgeTarget(weightedEdge)+" = " + graph.getEdgeWeight(weightedEdge));
+        }
+        if (graph.incomingEdgesOf(target).isEmpty() || graph.incomingEdgesOf(source).isEmpty()){
+            throw new ServiceException("Hello2", "Method5", HttpStatus.BAD_REQUEST);
+        }
+        ConnectivityInspector<String, DefaultWeightedEdge> ci = new ConnectivityInspector<>(graph);
+        boolean pathExists = ci.pathExists(source, target);
+        if (!pathExists){
+            throw new ServiceException("Hello1", "Method1", HttpStatus.BAD_REQUEST);
+        }
         BidirectionalDijkstraShortestPath<String, DefaultWeightedEdge> algo =
                 new BidirectionalDijkstraShortestPath<>(graph);
 
-        return algo.getPath(source, target);
+        GraphPath<String, DefaultWeightedEdge> path = algo.getPath(source, target);
+        System.out.println("path = ");
+        return path;
     }
 }

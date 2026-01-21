@@ -1,3 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-initial-data
+binaryData:
+  dump.rdb: |
+    {{ .Files.Get "redis-data/dump.rdb" | b64enc}}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.redis.persistence.size }}
+  {{- if .Values.redis.persistence.storageClass }}
+  storageClassName: {{ .Values.redis.persistence.storageClass }}
+  {{- end }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,6 +37,25 @@ spec:
       labels:
         app: redis
     spec:
+      initContainers:
+        - name: init-rdb
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              ls -a /data
+              cat /data/dump.rdb
+              ls -a /rdb-source
+              ls -a /
+              if [ ! -f /data/dump.rdb ]; then
+                cp /rdb-source/dump.rdb /data/dump.rdb
+              fi
+          volumeMounts:
+            - mountPath: /rdb-source
+              name: rdb-source
+            - mountPath: /data
+              name: redis-storage
       containers:
         - name: redis
           image: {{ .Values.redis.image }}
@@ -23,6 +65,9 @@ spec:
             - redis-server
             - --requirepass
             - $(REDIS_PASSWORD)
+          volumeMounts:
+            - mountPath: /data
+              name: redis-storage
           env:
             - name: REDIS_PASSWORD
               valueFrom:
@@ -47,6 +92,13 @@ spec:
             periodSeconds: 5
           resources:
           {{- toYaml .Values.redis.resources | nindent 12 }}
+      volumes:
+        - name: rdb-source
+          configMap:
+            name: redis-initial-data
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
 ---
 apiVersion: v1
 kind: Service

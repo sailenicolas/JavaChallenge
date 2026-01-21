@@ -1,6 +1,7 @@
 package com.empresa.cache.model;
 
 import com.empresa.cache.dtos.requests.PostCostMinRequest;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ import org.springframework.data.redis.core.RedisHash;
 public class PosCostMinHash {
     @Id
     private String id;
-    private List<PosCostHash> points;
+    private List<PosCostBHash> points;
     private BigDecimal minTotalCost;
 
     public PosCostMinHash(PostCostMinRequest postCostMinRequest, String id) {

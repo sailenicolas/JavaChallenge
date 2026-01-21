@@ -17,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Mono;
 
 @WebFluxTest
 @ExtendWith(SpringExtension.class)
@@ -30,7 +31,7 @@ class DataControllerTest {
     void getCredits() {
         CreditsModel value = new CreditsModel();
         value.setAmount("1");
-        when(service.getById(any())).thenReturn(Optional.of(value));
+        when(service.getById(any())).thenReturn(Mono.just(value));
         this.webTestClient.get()
                 .uri((a)->a
                         .pathSegment("credits")
@@ -50,7 +51,7 @@ class DataControllerTest {
     void postCredits() {
         CreditsModel value = new CreditsModel();
         value.setAmount("1");
-        when(service.createCredits(any())).thenReturn(value);
+        when(service.createCredits(any())).thenReturn(Mono.just(value));
         this.webTestClient.post()
                 .uri((a)->a
                         .pathSegment("credits")

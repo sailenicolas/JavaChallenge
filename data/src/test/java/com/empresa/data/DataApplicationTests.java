@@ -1,7 +1,6 @@
 package com.empresa.data;
 
 import com.empresa.data.repositories.DataManagerRepository;
-import jakarta.persistence.EntityManagerFactory;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;

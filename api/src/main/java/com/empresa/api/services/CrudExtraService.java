@@ -1,12 +1,16 @@
-package com.empresa.pos.services;
+package com.empresa.api.services;
 
-import com.empresa.pos.dtos.response.PosCostHash;
-import com.empresa.pos.dtos.response.PosCostMinHash;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.core.dtos.responses.ApiResponse;
+import com.empresa.api.dtos.response.PosCostHash;
+import com.empresa.api.dtos.response.PosCostMinHash;
+import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.core.services.CrudService;
+import java.util.List;
 import reactor.core.publisher.Mono;
 
-public interface CrudExtraService<T, V> extends CrudService<T,V> {
-    Mono<PosCostHash> getPointB(String idPointA, String idPointB);
+public interface CrudExtraService<T, V> extends CrudService<T,V, PosCostPutRequest> {
+    Mono<ApiResponse<List<PosCostBHash>>> getPointB(String idPointA);
 
-    Mono<PosCostMinHash> getPointMin(String id, String idB);
+    Mono<ApiResponse<PosCostMinHash>> getPointMin(String id, String idB);
 }
