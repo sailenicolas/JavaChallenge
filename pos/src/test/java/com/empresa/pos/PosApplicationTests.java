@@ -9,5 +9,9 @@ class PosApplicationTests {
     @Test
     void contextLoads() {
     }
+    @Test
+    void contextLoads1() {
+        PosApplication.main(new String[]{});
+    }
 
 }

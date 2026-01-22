@@ -63,7 +63,7 @@ class CachePosClientServiceImplTest {
 
     @Test
     void update() {
-        StepVerifier.create(this.service.update(new PostHashPutRequest(), any()))
+        StepVerifier.create(this.service.update(new PostHashPutRequest(), "hello"))
                 .assertNext((a)->{
                     assertThat(a.getPoint()).isNotNull();
                 }).verifyComplete();
