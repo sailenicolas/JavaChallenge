@@ -20,11 +20,13 @@ import reactor.test.StepVerifier;
 class CrudControllerTest {
     private CrudService<Object, Object, Object> service;
     private CrudController<Object, Object, Object> controller;
+    private CrudController<Object, Object, Object> extra_controller;
 
     @BeforeEach
     void setUp() {
         this.service = mock();
         this.controller = new CrudController<>(service,service,service,service,service);
+        this.extra_controller = new CrudController<>(service);
     }
 
     @Test
@@ -67,6 +69,14 @@ class CrudControllerTest {
     void delete() {
         when(this.service.delete(any())).thenReturn(Mono.just(new Object()).map(ApiResponse::new));
         Mono<ApiResponse<Object>> objectMono = this.controller.delete( "id");
+        StepVerifier.create(objectMono).assertNext((a)->{
+            assertThat(a).isNotNull();
+        }).verifyComplete();
+    }
+    @Test
+    void test_extra_controller() {
+        when(this.service.delete(any())).thenReturn(Mono.just(new Object()).map(ApiResponse::new));
+        Mono<ApiResponse<Object>> objectMono = this.extra_controller.delete( "id");
         StepVerifier.create(objectMono).assertNext((a)->{
             assertThat(a).isNotNull();
         }).verifyComplete();
