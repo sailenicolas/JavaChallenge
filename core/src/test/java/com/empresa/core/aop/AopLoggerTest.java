@@ -34,6 +34,6 @@ class AopLoggerTest {
 
     @Test
     void logReturn() {
-        this.aop.logReturn(mock(), new PostHashPutRequest());
+        this.aop.logReturn(null, new PostHashPutRequest());
     }
 }
