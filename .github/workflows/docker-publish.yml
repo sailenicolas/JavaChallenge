@@ -9,7 +9,7 @@ on:
   schedule:
     - cron: '18 8 * * *'
   push:
-    branches: [ "feature/main" ]
+    branches: [ "main" ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
@@ -43,6 +43,8 @@ jobs:
       - name: Test Java
         run: mvn clean verify
   build:
+    needs:
+      - test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
