@@ -97,6 +97,9 @@ class CrudServiceImplTest {
     void delete() {
         Mono<ApiResponse<PosHash>> byId = this.service.delete(("1"));
         StepVerifier.create(byId)
+                .assertNext(o ->{
+                    assertThat(o).isNotNull();
+                })
                 .verifyComplete();
 
     }

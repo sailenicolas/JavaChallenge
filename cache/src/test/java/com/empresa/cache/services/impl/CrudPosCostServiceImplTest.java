@@ -181,8 +181,8 @@ class CrudPosCostServiceImplTest {
         when(this.cachePosRepository.findById(any())).thenReturn(Optional.of(posHash));
         Iterable<PosHash> aa = List.of(posHash,posHash1,posHash2,posHash3,posHash4);
         when(this.cachePosRepository.findAllById(any())).thenReturn(aa);
-        when(this.cachePosCostRepository.findAllByIdPointA(any())).thenReturn(Collections.singletonList(id));
-        when(this.cachePosCostRepository.findAllByIdPointB(any())).thenReturn(Collections.singletonList(id1));
+        when(this.cachePosCostRepository.findAllByIdPointAOrIdPointA(any(),any())).thenReturn(Collections.singletonList(id));
+        when(this.cachePosCostRepository.findAllByIdPointBOrIdPointB(any(),any())).thenReturn(Collections.singletonList(id1));
         PosCostMinBase pointB = this.posCostService.getPointMinBase("1", "2").getData();
         assertThat(pointB.incoming().size()).isEqualTo(1);
         assertThat(pointB.outgoing().size()).isEqualTo(1);
