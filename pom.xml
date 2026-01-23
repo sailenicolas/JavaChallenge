@@ -27,6 +27,18 @@
   <!-- Importa versiónes (BOM) de Spring Boot -->
   <dependencyManagement>
     <dependencies>
+      <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-core -->
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>1.5.25</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.20.0</version>
+      </dependency>
+
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
