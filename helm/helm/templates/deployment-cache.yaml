@@ -32,6 +32,8 @@ spec:
                 secretKeyRef:
                   name: secrets-sql
                   key: redis-password
+            - name:  LOGGING_LEVEL_ORG_SPRINGFRAMEWORK
+              value: ERROR
         {{- if .Values.services.cache.healthCheck.enabled }}
           livenessProbe:
             httpGet:

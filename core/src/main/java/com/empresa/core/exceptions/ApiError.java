@@ -22,6 +22,10 @@ public class ApiError {
         this.message = message;
         this.errors = Collections.singletonList(errors);
     }
+    public ApiError(HttpStatusCode status, List<String> errors) {
+        this.message = "An Error Occurred: %s".formatted(status);
+        this.errors = errors;
+    }
 
     public ApiError() {
         this.message = "An error occurred";

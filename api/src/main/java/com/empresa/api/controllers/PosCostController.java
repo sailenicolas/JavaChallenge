@@ -1,7 +1,5 @@
 package com.empresa.api.controllers;
 
-import static com.empresa.core.utils.DataUtils.getId;
-
 import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.controllers.CrudController;
 import com.empresa.core.dtos.responses.ApiResponse;

@@ -1,33 +1,3 @@
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ .Values.services.api.name }}-sa
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: hazelcast-pod-reader
-rules:
-  - verbs:
-      - get
-      - list
-    apiGroups: [""]
-    resources:
-      - endpoints
-      - pods
-      - services
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: hazelcast-pod-reader
-subjects:
-  - kind: ServiceAccount
-    name: {{ .Values.services.api.name}}-sa
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -59,17 +29,17 @@ spec:
             - name: HAZEL_CLUSTER_NAME
               value: {{ .Values.services.api.hazelcast.cluster }}
             - name: HAZEL_K8S_SERVICE_ENABLED
-              value: {{ .Values.services.api.hazelcast.k8s }}
+              value: "{{ .Values.services.api.hazelcast.k8s }}"
             - name: HAZEL_TCPIP_SERVICE_ENABLED
-              value: {{ .Values.services.api.hazelcast.tcp }}
+              value: "{{ .Values.services.api.hazelcast.tcp }}"
             - name: HAZEL_K8S_SERVICE_NAME
-              value: {{ .Values.services.api.hazelcast.service }}
+              value: "{{ .Values.services.api.hazelcast.service }}"
             - name: HAZEL_K8S_NAMESPACE
-              value: {{ .Values.services.api.hazelcast.namespace }}
+              value: "{{ .Values.services.api.hazelcast.namespace }}"
             - name: HAZEL_K8S_PORT
-              value: {{ .Values.services.api.hazelcast.port }}
+              value: "{{ .Values.services.api.hazelcast.port }}"
             - name: HAZEL_METRICS
-              value: {{ .Values.services.api.hazelcast.metrics }}
+              value: "{{ .Values.services.api.hazelcast.metrics }}"
             - name: HAZELCAST_LOGGING_TYPE
               value: {{ .Values.services.api.hazelcast.logging }}
         {{- if .Values.services.api.healthCheck.enabled }}

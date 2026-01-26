@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.services.api.name }}-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hazelcast-role-pod-reader
+rules:
+  - verbs:
+      - get
+      - list
+    apiGroups: [""]
+    resources:
+      - endpoints
+      - pods
+      - services
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hazelcast-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hazelcast-role-pod-reader
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.services.api.name}}-sa

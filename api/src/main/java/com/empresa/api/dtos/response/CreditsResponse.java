@@ -3,7 +3,6 @@ package com.empresa.api.dtos.response;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
