@@ -1,10 +1,8 @@
 package com.empresa.cache.controllers;
 
 import com.empresa.cache.dtos.requests.PosCostRequest;
-import com.empresa.cache.dtos.requests.PostCostMinRequest;
 import com.empresa.cache.dtos.response.PosCostMinBase;
 import com.empresa.cache.model.PosCostHash;
-import com.empresa.cache.model.PosCostMinHash;
 import com.empresa.cache.services.CrudExtraService;
 import com.empresa.core.controllers.CrudController;
 import com.empresa.core.dtos.requests.PosCostPutRequest;
@@ -13,8 +11,6 @@ import com.empresa.core.dtos.responses.PosCostBHash;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;

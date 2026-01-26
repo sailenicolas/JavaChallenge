@@ -77,18 +77,18 @@ services:
       
   api:
     name: api
-    image: ghcr.io/sailenicolas/javachallenge-api:main
+    image: 'ghcr.io/sailenicolas/javachallenge-api:main'
     port: 8087
     externalPort: 8768
     hazelcast:
-      cluster: 'ms-api-haz'
-      k8s  : 'true'
-      tcp  : 'false'
-      service  : 'ms-api'
-      namespace  : 'default'
-      port  : '5701'
-      metrics  : 'false'
-      logging: 'none'
+      cluster: ms-api-haz
+      k8s  : true
+      tcp  : false
+      service  : api
+      namespace  : default
+      port  : 5701
+      metrics  : false
+      logging: none
     resources:
       requests:
         memory: "512Mi"
@@ -107,8 +107,6 @@ services:
       path: /ms-api/actuator/health
       initialDelaySeconds: 60
       periodSeconds: 10
-
-# PostgreSQL configuration
 
 # PostgreSQL configuration
 postgresql:

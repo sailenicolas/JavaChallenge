@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.empresa.core.controllers.CrudController;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Parameter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,8 +22,10 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.method.MethodValidationException;
 import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.support.WebExchangeBindException;
@@ -100,8 +103,10 @@ class ExceptionBaseHandlerTest {
     }
 
     @Test
-    void handleWebExchangeBindException() {
-        Mono<ResponseEntity<Object>> responseEntity = this.service.handleWebExchangeBindException(new WebExchangeBindException(mock(), mock()), mock(), HttpStatus.BAD_REQUEST, mock());
+    void handleWebExchangeBindException() throws NoSuchMethodException {
+        BindingResult bindingResult = mock();
+        WebExchangeBindException webExchangeBindException = new WebExchangeBindException(new MethodParameter(ExceptionBaseHandler.class.getDeclaredMethod("handleWebExchangeBindException", WebExchangeBindException.class, HttpHeaders.class, HttpStatusCode.class, ServerWebExchange.class), 1), bindingResult);
+        Mono<ResponseEntity<Object>> responseEntity = this.service.handleWebExchangeBindException(webExchangeBindException, mock(), HttpStatus.BAD_REQUEST, mock());
         assertThat(responseEntity).isNotNull();
     }
 

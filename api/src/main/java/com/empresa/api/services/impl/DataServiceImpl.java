@@ -2,11 +2,9 @@ package com.empresa.api.services.impl;
 
 import com.empresa.api.dtos.requests.CreditsClientRequest;
 import com.empresa.api.dtos.requests.CreditsRequest;
-import com.empresa.api.dtos.requests.PosHashRequest;
 import com.empresa.api.dtos.response.CreditsResponse;
 import com.empresa.api.dtos.response.PosHash;
 import com.empresa.core.dtos.responses.ApiResponse;
-import com.empresa.core.services.CrudService;
 import com.empresa.api.services.DataClientService;
 import com.empresa.api.services.DataService;
 import com.empresa.core.services.GetService;
