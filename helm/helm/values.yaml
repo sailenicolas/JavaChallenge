@@ -87,8 +87,8 @@ services:
       service  : api
       namespace  : default
       port  : 5701
-      metrics  : true
-      logging: debug
+      metrics  : false
+      logging: none
     resources:
       requests:
         memory: "512Mi"
