@@ -3,8 +3,8 @@ server:
 
 logging:
   level:
-    sql: debug
-    org.springframework: debug
+    sql: ERROR
+    org.springframework: ERROR
 spring:
   mvc:
     servlet:

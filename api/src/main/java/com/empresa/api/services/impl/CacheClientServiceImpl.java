@@ -1,11 +1,11 @@
 package com.empresa.api.services.impl;
 
 import com.empresa.api.clients.PosCostClient;
-import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.api.dtos.requests.PosCostRequest;
 import com.empresa.api.dtos.response.PosCostHash;
 import com.empresa.api.dtos.response.PosCostMinHash;
 import com.empresa.api.services.CacheClientService;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.core.exceptions.NotFoundServiceException;
@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 public class CacheClientServiceImpl implements CacheClientService {
     private final PosCostClient posCostClient;
     @Override
-    @Cacheable(value = "pointB", key = "#idPointA")
+    @Cacheable(value = "posCost-pointB", key = "#idPointA")
     public List<PosCostBHash> getPointB(String idPointA) {
         return posCostClient.getPointB(idPointA)
                 .map(ApiResponse::getData)
@@ -41,14 +41,14 @@ public class CacheClientServiceImpl implements CacheClientService {
     }
 
     @Override
-    @Cacheable(value = "findAll", key = "'all'")
+    @Cacheable(value = "posCost-findAll", key = "'all'")
     public List<PosCostHash> findAll() {
         return this.posCostClient.findAll()
                 .map(ApiResponse::getData).blockOptional().orElseThrow(NotFoundServiceException::new);
     }
 
     @Override
-    @Cacheable(value = "MinCost", key = "#idPointA+'-'+#idPointB")
+    @Cacheable(value = "posCost-MinCost", key = "#idPointA+'-'+#idPointB")
     public PosCostMinHash getMinCost(String idPointA, String idPointB) {
         return this.posCostClient.getMinCost(idPointA, idPointB)
                 .map(ApiResponse::getData)
@@ -57,7 +57,7 @@ public class CacheClientServiceImpl implements CacheClientService {
     }
 
     @Override
-    @Cacheable(value = "ById", key = "#root.args[0]")
+    @Cacheable(value = "posCost-ById", key = "#root.args[0]")
     public PosCostHash findById(String id) {
         return this.posCostClient.findById(id)
                 .map(ApiResponse::getData)

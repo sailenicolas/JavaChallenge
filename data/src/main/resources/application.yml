@@ -16,5 +16,5 @@ spring:
     base-path: /ms-data
 logging:
   level:
-    sql: debug
-    org.springframework: DEBUG
+    sql: ERROR
+    org.springframework: ERROR
