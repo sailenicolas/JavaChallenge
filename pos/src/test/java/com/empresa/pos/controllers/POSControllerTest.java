@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.dtos.requests.PosHashRequest;
 import com.empresa.pos.dtos.response.PosHash;
@@ -97,7 +98,7 @@ class POSControllerTest {
     }
 
     /**
-     * Class under test: {@link CachePOSController#put(PosHashRequest, String)}
+     * Class under test: {@link CachePOSController#put(PostHashPutRequest, String)}
      */
     @Test
     void put() {
@@ -105,7 +106,7 @@ class POSControllerTest {
         this.webTestClient.put().uri((a)->a
                         .pathSegment("Pos")
                         .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PosHashRequest()))
+                .body(BodyInserters.fromValue(new PostHashPutRequest("111")))
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()

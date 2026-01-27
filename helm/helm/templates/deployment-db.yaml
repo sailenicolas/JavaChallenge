@@ -124,16 +124,3 @@ spec:
           persistentVolumeClaim:
             claimName: postgres-pvc
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: db
-spec:
-  selector:
-    app: db
-  ports:
-    - protocol: TCP
-      port: {{ .Values.postgresql.port }}
-      targetPort: {{ .Values.postgresql.port }}
-  type: ClusterIP
----

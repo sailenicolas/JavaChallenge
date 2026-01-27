@@ -6,13 +6,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.dtos.requests.PosHashRequest;
 import com.empresa.pos.dtos.response.PosHash;
 import com.empresa.pos.services.CachePosClientService;
-import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +77,7 @@ class CrudServiceImplTest {
     }
 
     /**
-     * Class under test: {@link CacheServiceImpl#putCache(PosCostPutRequest, String)} 
+     * Class under test: {@link CacheServiceImpl#putCache(PostHashPutRequest, String)}
      */
     @Test
     void putCache() {
@@ -88,7 +86,7 @@ class CrudServiceImplTest {
         value.setId("1");
         value.setPoint("2");
         when(cachePosCostRepository.update(any(), any())).thenReturn(Mono.just(value));
-        Mono<ApiResponse<PosHash>> byId = this.service.putCache(new PosCostPutRequest(new BigDecimal("2")), "1");
+        Mono<ApiResponse<PosHash>> byId = this.service.putCache(new PostHashPutRequest("1"), "1");
         StepVerifier.create(byId)
                 .assertNext((a)->{
                     assertThat(a.getData().getPoint()).isEqualTo("2");
