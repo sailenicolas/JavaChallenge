@@ -13,7 +13,6 @@ import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.core.exceptions.NotFoundServiceException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +37,11 @@ public class CrudPosCostServiceImpl implements CrudExtraService<PosCostHash, Pos
 
     @Override
     public Mono<ApiResponse<PosCostHash>> getById(String id) {
-        return Mono.fromSupplier(()->cachePosCostRepository.findById(id)
-                        .orElse(null)
-                ).subscribeOn(Schedulers.boundedElastic()).map(ApiResponse::new);
+        return Mono.fromSupplier(
+                        () -> cachePosCostRepository.findById(id).orElse(null))
+                .switchIfEmpty(Mono.error(new NotFoundServiceException()))
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(ApiResponse::new);
     }
 
     @Override
@@ -84,7 +85,13 @@ public class CrudPosCostServiceImpl implements CrudExtraService<PosCostHash, Pos
 
     @Override
     public Mono<ApiResponse<List<PosCostHash>>> getAll() {
-        return Mono.fromSupplier(()->StreamUtils.createStreamFromIterator(cachePosCostRepository.findAll().iterator()).toList()).subscribeOn(Schedulers.boundedElastic()).map(ApiResponse::new);
+        return Mono.fromSupplier(() -> StreamUtils
+                        .createStreamFromIterator(cachePosCostRepository
+                                .findAll()
+                                .iterator())
+                        .toList())
+                .subscribeOn(Schedulers.boundedElastic())
+                .map(ApiResponse::new);
     }
 
     @Override
