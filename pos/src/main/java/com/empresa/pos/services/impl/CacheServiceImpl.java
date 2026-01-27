@@ -1,6 +1,6 @@
 package com.empresa.pos.services.impl;
 
-import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.services.CrudService;
 import com.empresa.pos.dtos.requests.PosHashRequest;
@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @AllArgsConstructor
-public class CacheServiceImpl implements CrudService<PosHash, PosHashRequest, PosCostPutRequest> {
+public class CacheServiceImpl implements CrudService<PosHash, PosHashRequest, PostHashPutRequest> {
     private final CachePosClientService cachePosRepository;
     @Override
     public Mono<ApiResponse<PosHash>> getById(String id) {
@@ -31,7 +31,7 @@ public class CacheServiceImpl implements CrudService<PosHash, PosHashRequest, Po
     }
 
     @Override
-    public Mono<ApiResponse<PosHash>> putCache(PosCostPutRequest posHash, String id) {
+    public Mono<ApiResponse<PosHash>> putCache(PostHashPutRequest posHash, String id) {
         return cachePosRepository.update(posHash, id).map(ApiResponse::new);
     }
     @Override

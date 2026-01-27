@@ -1,9 +1,8 @@
 package com.empresa.pos.services.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 
-import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.pos.clients.CachePosClient;
 import com.empresa.pos.config.RestConfig;
 import com.empresa.pos.dtos.requests.PosHashRequest;
@@ -61,7 +60,7 @@ class CachePosClientServiceImplTest {
 
     @Test
     void update() {
-        StepVerifier.create(this.service.update(new PosCostPutRequest(), "hello"))
+        StepVerifier.create(this.service.update(new PostHashPutRequest(), "hello"))
                 .assertNext((a)->{
                     assertThat(a.getPoint()).isNotNull();
                 }).verifyComplete();

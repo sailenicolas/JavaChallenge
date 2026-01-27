@@ -1,6 +1,6 @@
 package com.empresa.pos.clients;
 
-import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.pos.config.RestConfig;
 import com.empresa.pos.dtos.requests.PosHashRequest;
@@ -59,7 +59,7 @@ public class CachePosClient {
                 });
     }
 
-    public Mono<ApiResponse<PosHash>> update(PosCostPutRequest posHash, String id) {
+    public Mono<ApiResponse<PosHash>> update(PostHashPutRequest posHash, String id) {
         return this.client.put().uri( o -> o
                         .pathSegment("Pos")
                         .queryParam("id", id)
