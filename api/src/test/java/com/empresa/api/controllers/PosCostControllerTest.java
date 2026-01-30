@@ -8,6 +8,7 @@ import com.empresa.api.dtos.requests.PosCostRequest;
 import com.empresa.api.dtos.requests.PosHashRequest;
 import com.empresa.api.dtos.response.PosCostHash;
 import com.empresa.api.services.CrudExtraService;
+import com.empresa.core.dtos.requests.PostHashPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -100,7 +101,7 @@ class PosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#put(PosHashRequest, String)}
+     * Class under test: {@link POSController#put(PostHashPutRequest, String)}
      */
     @Test
     void put() {
@@ -108,7 +109,7 @@ class PosCostControllerTest {
         this.webTestClient.put().uri((a)->a
                         .pathSegment(POS)
                         .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PosHashRequest()))
+                .body(BodyInserters.fromValue(new PostHashPutRequest()))
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
