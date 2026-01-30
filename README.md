@@ -261,6 +261,7 @@ title POST create POS Cost
 ## POSCOST PUT
 
 ```mermaid
+sequenceDiagram
 title PUT update POS
     actor Cliente
     participant api as ms-api
@@ -287,6 +288,7 @@ title PUT update POS
 ## POSCOST DELETE
 
 ```mermaid
+sequenceDiagram
 title PUT update POS
     actor Cliente
     participant api as ms-api
@@ -313,6 +315,7 @@ title PUT update POS
 ## POSCOST GET
 
 ```mermaid
+sequenceDiagram
 title PUT update POS
     actor Cliente
     participant api as ms-api
