@@ -130,12 +130,12 @@ title POST create POS
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: POST /ms-api/Pos
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: POST /ms-pos/Pos
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: POST /ms-cached/Pos
     activate cached
     cached -->> datos: create
     deactivate cached
@@ -151,20 +151,20 @@ title POST create POS
 
 ```mermaid
 sequenceDiagram
-title POST create POS
+title PUT update POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: PUT /ms-api/Pos
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: PUT /ms-pos/Pos
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: PUT /ms-cached/Pos
     activate cached
-    cached -->> datos: create
+    cached -->> datos: update
     deactivate cached
     activate datos
     datos -->> cached: return
@@ -178,20 +178,20 @@ title POST create POS
 
 ```mermaid
 sequenceDiagram
-title POST create POS
+title DELETE delete POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: DELETE /ms-api/Pos
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: DELETE /ms-pos/Pos
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: DELETE /ms-cached/Pos
     activate cached
-    cached -->> datos: create
+    cached -->> datos: delete
     deactivate cached
     activate datos
     datos -->> cached: return
@@ -205,20 +205,20 @@ title POST create POS
 
 ```mermaid
 sequenceDiagram
-title POST create POS
+title GET get POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: GET /ms-api/Pos/byId/{id}
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: GET /ms-pos/Pos/byId/{id}
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: GET /ms-cached/Pos/byId/{id}
     activate cached
-    cached -->> datos: create
+    cached -->> datos: obtain
     deactivate cached
     activate datos
     datos -->> cached: return
@@ -232,22 +232,25 @@ title POST create POS
 
 ```mermaid
 sequenceDiagram
-title POST create POS
+title POST create POS Cost
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: POST /ms-api/PosCost
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: POST /ms-pos/PosCost
     activate cached
-    pos->>cached: POST /api/VCC
-    activate cached
+    pos->>cached: GET /ms-cached/Pos
+    pos->>cached: GET /ms-cached/Pos
+    activate datos
+    cached -->> datos: obtain
+    cached -->> datos: obtain
+    pos->>cached: POST /ms-cached/PosCost
     cached -->> datos: create
     deactivate cached
-    activate datos
     datos -->> cached: return
     deactivate datos
     cached -->> pos: return
@@ -258,21 +261,20 @@ title POST create POS
 ## POSCOST PUT
 
 ```mermaid
-sequenceDiagram
-title POST create POS
+title PUT update POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: PUT /ms-api/PosCost
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: PUT /ms-pos/PosCost
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: PUT /ms-cached/PosCost
     activate cached
-    cached -->> datos: create
+    cached -->> datos: update
     deactivate cached
     activate datos
     datos -->> cached: return
@@ -285,21 +287,20 @@ title POST create POS
 ## POSCOST DELETE
 
 ```mermaid
-sequenceDiagram
-title POST create POS
+title PUT update POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: DELETE /ms-api/PosCost
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: DELETE /ms-pos/PosCost
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: DELETE /ms-cached/PosCost
     activate cached
-    cached -->> datos: create
+    cached -->> datos: delete
     deactivate cached
     activate datos
     datos -->> cached: return
@@ -312,21 +313,20 @@ title POST create POS
 ## POSCOST GET
 
 ```mermaid
-sequenceDiagram
-title POST create POS
+title PUT update POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: POST /api/aaa
+    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
     activate api
     activate pos
-    api->>pos: Call
+    api->>pos: GET /ms-pos/PosCost/ById/{id}
     activate cached
-    pos->>cached: POST /api/VCC
+    pos->>cached: GET /ms-cached/PosCost/ById/{id}
     activate cached
-    cached -->> datos: create
+    cached -->> datos: GET
     deactivate cached
     activate datos
     datos -->> cached: return
