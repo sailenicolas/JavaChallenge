@@ -15,9 +15,9 @@ Estructura
 - Dockerfile por ARG declarando servicio 
 - README.md (este archivo)
 
-:::mermaid
+```mermaid
 sequenceDiagram
-title POST WEBHOOK create subscription
+title POST create POS
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
@@ -38,7 +38,7 @@ title POST WEBHOOK create subscription
     cached -->> pos: return
     pos -->> api: return
     api -->> Cliente: return
-:::
+```
 
 Ejecutar con Docker Compose
 1. Crear `.env` (ejemplo mínimo):
