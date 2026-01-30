@@ -44,12 +44,11 @@ class PosCostControllerTest {
      */
     @Test
     void get() {
-        when(service.getById(any())).thenReturn(Mono.justOrEmpty(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
+        when(service.getById(any(), any())).thenReturn(Mono.justOrEmpty(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
         this.webTestClient.get()
                 .uri((a)->a
-                        .pathSegment(POS, "byId", "{id}")
-                        .queryParam("id")
-                        .build("1")
+                        .pathSegment(POS, "byId", "{id}", "{idB}")
+                        .build("1", "2")
                 )
                 .exchange()
                 .expectStatus()

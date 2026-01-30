@@ -2,14 +2,15 @@ package com.empresa.api.services.impl;
 
 import static reactor.core.scheduler.Schedulers.boundedElastic;
 
-import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.api.dtos.requests.PosCostRequest;
 import com.empresa.api.dtos.response.PosCostHash;
 import com.empresa.api.dtos.response.PosCostMinHash;
 import com.empresa.api.services.CacheClientService;
-import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.api.services.CrudExtraService;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
+import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.dtos.responses.PosCostBHash;
+import com.empresa.core.utils.DataUtils;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -61,5 +62,10 @@ public class CrudPosCostServiceImpl implements CrudExtraService<PosCostHash, Pos
     @Override
     public  Mono<ApiResponse<PosCostMinHash>> getPointMin(String idPointA, String idPointB) {
         return Mono.fromSupplier(()->clientService.getMinCost(idPointA, idPointB)).subscribeOn(SCHEDULER).map(ApiResponse::new);
+    }
+
+    @Override
+    public Mono<ApiResponse<PosCostHash>> getById(String idA, String idB) {
+        return this.getById(DataUtils.getId("COST", idA, idB));
     }
 }
