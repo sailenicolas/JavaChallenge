@@ -262,7 +262,7 @@ title POST create POS Cost
 
 ```mermaid
 sequenceDiagram
-title PUT update POS
+title PUT update POSCOST
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
@@ -289,7 +289,7 @@ title PUT update POS
 
 ```mermaid
 sequenceDiagram
-title PUT update POS
+title DELETE delete POSCOST
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
@@ -316,7 +316,116 @@ title PUT update POS
 
 ```mermaid
 sequenceDiagram
-title PUT update POS
+title GET obtain POS COST
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    activate cached
+    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST GET Points to/from a Point
+
+```mermaid
+sequenceDiagram
+title GET obtain  List of POS Costs
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    activate cached
+    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST GET Min Cost By Two Points
+
+```mermaid
+sequenceDiagram
+title GET Obtain POS
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    activate cached
+    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+
+
+## Credits POST
+
+```mermaid
+sequenceDiagram
+title POST create Credits
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    activate cached
+    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+## Credits GET
+
+```mermaid
+sequenceDiagram
+title GET obtain Credits
     actor Cliente
     participant api as ms-api
     participant pos as ms-pos
