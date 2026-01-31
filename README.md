@@ -349,12 +349,12 @@ title GET obtain  List of POS Costs
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    Cliente->>api: GET /ms-api/PosCost/pointA?idA={idA}
     activate api
     activate pos
-    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    api->>pos: GET /ms-pos/PosCost/pointA?idA={idA}
     activate cached
-    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    pos->>cached: GET /ms-cached/PosCost/pointA?idA={idA}
     activate cached
     cached -->> datos: GET
     deactivate cached
@@ -376,12 +376,12 @@ title GET Obtain POS
     participant pos as ms-pos
     participant cached as ms-cached
     participant datos as REDIS
-    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    Cliente->>api: GET /ms-api/PosCost/pointMin?idA={idA}&idB={idB}
     activate api
     activate pos
-    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    api->>pos: GET /ms-pos/PosCost/pointMin?idA={idA}&idB={idB}
     activate cached
-    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    pos->>cached: GET /ms-cached/pointMinBase?idA={idA}&idB={idB}
     activate cached
     cached -->> datos: GET
     deactivate cached
@@ -402,48 +402,38 @@ sequenceDiagram
 title POST create Credits
     actor Cliente
     participant api as ms-api
-    participant pos as ms-pos
-    participant cached as ms-cached
-    participant datos as REDIS
-    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    participant data as ms-data
+    participant datos as POSTGRESQL
+    Cliente->>api: GET /ms-api/Credits
     activate api
-    activate pos
-    api->>pos: GET /ms-pos/PosCost/ById/{id}
-    activate cached
-    pos->>cached: GET /ms-cached/PosCost/ById/{id}
-    activate cached
-    cached -->> datos: GET
-    deactivate cached
+    api->>data: POST /ms-data/credits
+    activate data
+    data -->> datos: create
     activate datos
-    datos -->> cached: return
+    datos -->> data: return
     deactivate datos
-    cached -->> pos: return
-    pos -->> api: return
+    deactivate data
+    data -->> api: return
     api -->> Cliente: return
 ```
 ## Credits GET
 
 ```mermaid
 sequenceDiagram
-title GET obtain Credits
+title POST create Credits
     actor Cliente
     participant api as ms-api
-    participant pos as ms-pos
-    participant cached as ms-cached
-    participant datos as REDIS
-    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    participant data as ms-data
+    participant datos as POSTGRESQL
+    Cliente->>api: GET /ms-api/Credits
     activate api
-    activate pos
-    api->>pos: GET /ms-pos/PosCost/ById/{id}
-    activate cached
-    pos->>cached: GET /ms-cached/PosCost/ById/{id}
-    activate cached
-    cached -->> datos: GET
-    deactivate cached
+    api->>data: GET /ms-data/credits?id={id}
+    activate data
+    data -->> datos: obtain
+    deactivate data
     activate datos
-    datos -->> cached: return
+    datos -->> data: return
     deactivate datos
-    cached -->> pos: return
-    pos -->> api: return
+    data -->> api: return
     api -->> Cliente: return
 ```
