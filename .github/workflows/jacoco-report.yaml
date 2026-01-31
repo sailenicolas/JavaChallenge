@@ -33,6 +33,12 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
       - name: Test Java
         run: mvn clean verify
       - name: JaCoCo Code Coverage Report
