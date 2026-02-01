@@ -12,9 +12,16 @@ on:
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "feature/main", "main" ]
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     strategy:
       fail-fast: false
       matrix:
