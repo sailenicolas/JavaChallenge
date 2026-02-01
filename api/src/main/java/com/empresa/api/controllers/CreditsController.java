@@ -5,8 +5,10 @@ import com.empresa.api.dtos.response.CreditsResponse;
 import com.empresa.api.services.DataService;
 import com.empresa.core.annotations.LogStartClose;
 import com.empresa.core.dtos.responses.ApiResponse;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,17 +21,18 @@ import reactor.core.publisher.Mono;
 @RequestMapping(path = "/Credits")
 @AllArgsConstructor
 @LogStartClose
+@Validated
 public class CreditsController {
 
     private final DataService dataService;
 
     @GetMapping
-    public Mono<ApiResponse<CreditsResponse>> getCredits(@RequestParam(name = "id") String id){
+    public Mono<ApiResponse<CreditsResponse>> getCredits(@Validated @NotEmpty @RequestParam(name = "id") String id) {
         return dataService.getById(id).map(ApiResponse::new);
     }
 
     @PostMapping
-    public Mono<ResponseEntity<ApiResponse<CreditsResponse>>> postCredits(@RequestBody CreditsRequest id){
+    public Mono<ResponseEntity<ApiResponse<CreditsResponse>>> postCredits(@Validated @RequestBody CreditsRequest id) {
         return dataService.createCredits(id).map(ApiResponse::new).map(ResponseEntity::ofNullable);
     }
 

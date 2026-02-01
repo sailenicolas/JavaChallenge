@@ -8,6 +8,7 @@ import com.empresa.core.services.GetAllService;
 import com.empresa.core.services.GetService;
 import com.empresa.core.services.PostService;
 import com.empresa.core.services.PutService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import reactor.core.publisher.Mono;
 
 @AllArgsConstructor
 @Validated
+@Valid
 @LogStartClose
 public class CrudController<T, V, U> implements DeleteController<T>, GetAllController<T>, PostController<T, V>, PutController<T,U>, GetController<T> {
 

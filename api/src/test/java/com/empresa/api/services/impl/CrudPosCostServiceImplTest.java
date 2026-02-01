@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
-class CachePosCostServiceImplTest {
+class CrudPosCostServiceImplTest {
     private CacheClientService cachePosCostRepository;
     private CrudPosCostServiceImpl posCostService;
 
@@ -45,7 +45,7 @@ class CachePosCostServiceImplTest {
         value.setCost(new BigDecimal("1"));
         when(this.cachePosCostRepository.findById(any())).thenReturn(value);
         StepVerifier.create(this.posCostService.getById("a"))
-                .assertNext((a)->{
+                .assertNext((a) -> {
                     assertThat(a.getData().getCost()).isEqualTo(new BigDecimal("1"));
                 })
                 .verifyComplete();
@@ -68,7 +68,7 @@ class CachePosCostServiceImplTest {
         id1.setIdPointA("1");
         id1.setIdPointB("2");
         StepVerifier.create(this.posCostService.createCache(id1))
-                .assertNext((o)->{
+                .assertNext((o) -> {
                     assertThat(o.getData().getCost()).isEqualTo(id.getCost());
                 })
                 .verifyComplete();
@@ -81,7 +81,7 @@ class CachePosCostServiceImplTest {
     void delete() {
         when(this.cachePosCostRepository.deleteById(anyString())).thenReturn(Mono.just(new PosCostHash()));
         StepVerifier.create(posCostService.delete("1"))
-                .assertNext((o)->{
+                .assertNext((o) -> {
                     assertThat(o.getData().getCost()).isNull();
                 })
                 .verifyComplete();
@@ -101,7 +101,7 @@ class CachePosCostServiceImplTest {
         PosCostPutRequest id1 = new PosCostPutRequest();
         id1.setCost(new BigDecimal("1"));
         StepVerifier.create(this.posCostService.putCache(id1, "1"))
-                .assertNext((o)->{
+                .assertNext((o) -> {
                     assertThat(o.getData().getCost()).isEqualTo(id.getCost());
                 })
                 .verifyComplete();
@@ -122,7 +122,7 @@ class CachePosCostServiceImplTest {
         id1.setIdPointA("1");
         id1.setIdPointB("2");
         StepVerifier.create(this.posCostService.getAll())
-                .assertNext((o)->{
+                .assertNext((o) -> {
                     assertThat(o.getData().getFirst().getCost()).isEqualTo(id.getCost());
                 })
                 .verifyComplete();
@@ -133,7 +133,7 @@ class CachePosCostServiceImplTest {
      */
     @Test
     void getPointB() {
-        PosCostBHash id = new PosCostBHash("", "","", "","", new BigDecimal("1"));
+        PosCostBHash id = new PosCostBHash("", "", "", "", "", new BigDecimal("1"));
         id.setCost(new BigDecimal("1"));
         id.setIdPointA("1");
         id.setIdPointB("2");
@@ -144,12 +144,20 @@ class CachePosCostServiceImplTest {
 
     @Test
     void getPointMin() {
-        var id = new PosCostBHash("", "",  "",  "", "", new BigDecimal("1"));
+        var id = new PosCostBHash("", "", "", "", "", new BigDecimal("1"));
         id.setCost(new BigDecimal("1"));
         id.setIdPointA("1");
         id.setIdPointB("2");
         when(this.cachePosCostRepository.getMinCost(any(), anyString())).thenReturn(new PosCostMinHash("1", Collections.singletonList(id), new BigDecimal("1")));
         Mono<ApiResponse<PosCostMinHash>> pointB = this.posCostService.getPointMin("1", "2");
         assertThat(pointB).isNotNull();
+    }
+
+    @Test
+    void getByIdB() {
+        when(this.cachePosCostRepository.findById(any())).thenReturn(new PosCostHash("1", "id", "", new BigDecimal("1")));
+        Mono<ApiResponse<PosCostHash>> point = this.posCostService.getById("1", "2");
+        assertThat(point).isNotNull();
+
     }
 }

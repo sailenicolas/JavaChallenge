@@ -4,7 +4,7 @@ Resumen breve
 - Este repositorio contiene dos formas de ejecutar la solución:
     1. Docker Compose (archivo `docker-compose.yml` + `.env`) — ejecución local con Docker.
     2. Helm (carpeta `helm`) — desplegar en Kubernetes (Minikube se utiliza de ejemplo).
-
+       helm upgrade challenge-release ./helm/helm
 ## Docker
 Prerrequisitos
 - Docker (y Docker Compose)
@@ -17,28 +17,33 @@ Estructura
 
 Ejecutar con Docker Compose
 1. Crear `.env` (ejemplo mínimo):
-     ```
-     POSTGRES_USER=app
-     POSTGRES_PASSWORD=changeme
-     POSTGRES_DB=appdb
-     REDIS_HOST=redis
-     BACKEND_IMAGE=my-backend:latest
-     FRONTEND_IMAGE=my-frontend:latest
-     ```
+    ```
+    LOCAL_PORT: 8768
+    POSTGRES_DB: MQDB
+    POSTGRES_PASSWORD: Password
+    POSTGRES_USER: Username
+    DOCKER_PORT: 8088
+    REDIS_PASSWORD: Password
+    HOST_POS: pos
+    HOST_DATA: data
+    HOST_CACHE: cache
+    REDIS_HOST: cacheRedis
+    ```
 2. Construir imágenes (si aplica):
-     - docker build -t my-backend:latest ./backend
-     - docker build -t my-frontend:latest ./frontend
+    - podman compose -f compose.yaml up --build redis -d
+    - podman compose -f compose.yaml up --build db -d
 3. Levantar servicios:
      - docker-compose up -d --build
-4. Ver logs / parar:
+   - podman compose -f compose.yaml up --build -d
+4. Ver logs parar:
      - docker-compose logs -f
+5. Parar
      - docker-compose down -v
 
 Notas Docker Compose
-- Usar volúmenes para persistencia de PostgreSQL.
-- Variables sensibles (contraseñas) pueden colocarse en `.env` o usar Docker secrets en entornos más seguros.
-- Exponer puertos locales según `docker-compose.yml` (ej.: backend: 8080, frontend: 3000).
 
+- Se usan volúmenes para persistencia de PostgreSQL.
+- Variables sensibles (contraseñas) se colocan `.env`
 
 ## Helm
 
@@ -60,19 +65,22 @@ Notas Docker Compose
 
 ### Ejecutar con Helm en Minikube
 1. Instalar 
-     - Minikube 
-     - Docker (O podman)
-     - Helm
+    - Minikube
+    - Docker (O podman)
+    - Helm
 2. Iniciar Minikube:
-     - minikube start
-3. Instalar el chart:
-     - helm upgrade --install challenge1 ./helm -n challenge --create-namespace -f ./helm/values.yaml
-4. Ver estado:
-     - kubectl get pods -n challenge
-     - kubectl get svc -n challenge
-5. Acceso:
-     - minikube service <servicio> -n challenge
-     - o kubectl port-forward svc/backend 8080:8080 -n challenge
+    - minikube start
+3. Activar Addons
+    - minikube addons enable ingress
+4. Instalar el chart:
+    - helm install challenge-release ./helm/helm
+5. Actualizar el chat
+    - helm upgrade challenge-release ./helm/helm
+6. Activar el tunnel Minikube
+    - minikube tunnel
+7. Ver estado:
+    - kubectl get pods -n default
+    - kubectl get svc -n default
 
 Notas Helm
 - values.yaml contiene imágenes, recursos, persistencia y configuración de Redis / Postgres.
@@ -86,9 +94,10 @@ Notas Helm
     - Comunicación: HTTP/REST o eventos (si aplica).
 - WebFlux / Reactivo:
     - Backend implementado con Spring WebFlux (non-blocking) para alto rendimiento y manejo eficiente de conexiones.
-    - Uso de programacion reactiva (Flux/Mono) en capas de controlador, servicio y repositorio (cuando sea compatible).
+  - Uso de programación reactiva (Flux/Mono) en capas de controlador, servicio y repositorio (cuando sea compatible).
 - MVC vs Reactivo:
-    - MVC clásico (Spring MVC) es bloqueante; WebFlux mantiene separación de responsabilidades (controlador -> servicio -> repositorio) pero con tipos reactivos.
+    - MVC clásico (Spring MVC) es bloqueante; WebFlux mantiene separación de responsabilidades (controlador → servicio →
+      repositorio) pero con tipos reactivos.
     - Controladores reaccionan a flujos de datos (no a hilos bloqueantes).
 - RedisReactivo:
     - Redis usado como cache reactivo o pub/sub con cliente reactivo (lettuce/reactor).
@@ -99,7 +108,10 @@ Notas Helm
 - DRY (Don't Repeat Yourself)
   DRY: extraer lógica común en utilidades/services compartidos o librerías internas.
 - SOLID:
-  - SOLID: aplicar Single Responsibility (controladores ligeros), Open/Closed (extensibilidad), Dependency Injection (inversión de dependencias), interfaces para repositorios, etc.
+    - Single Responsibility (controladores ligeros)
+    - Open/Closed (extensibilidad)
+    - Dependency Injection (inversión de dependencias)
+    - interfaces para repositorios, etc.
 
 Principios asociados y su aplicación
 - Escalabilidad: microservicios + Docker/Helm permiten escalar por servicio; WebFlux mejora concurrencia.
@@ -108,13 +120,320 @@ Principios asociados y su aplicación
 - Seguridad: gestión de secretos en Kubernetes (Secrets), TLS para servicios, validar inputs y aplicar roles.
 - Mantenibilidad: aplicar SOLID/DRY, tests unitarios y de integración, CI/CD para builds y despliegues.
 
-Recomendaciones prácticas
-- En Minikube, usar `eval $(minikube docker-env)` para evitar push a registry.
-- Configurar readiness/liveness probes en Kubernetes.
-- Proteger credenciales con Kubernetes Secrets o herramientas como HashiCorp Vault.
-- Documentar valores en `helm/values.yaml` para facilitar customización.
+## POS POST
 
-Contacto y soporte
-- Incluir en el repo instrucciones de CI/CD (GitHub Actions/GitLab CI) para build/push de imágenes y despliegues automáticos si se desea.
+```mermaid
+sequenceDiagram
+title POST create POS
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: POST /ms-api/Pos
+    activate api
+    activate pos
+    api->>pos: POST /ms-pos/Pos
+    activate cached
+    pos->>cached: POST /ms-cached/Pos
+    activate cached
+    cached -->> datos: create
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
 
-Fin.
+## POS PUT
+
+```mermaid
+sequenceDiagram
+title PUT update POS
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: PUT /ms-api/Pos
+    activate api
+    activate pos
+    api->>pos: PUT /ms-pos/Pos
+    activate cached
+    pos->>cached: PUT /ms-cached/Pos
+    activate cached
+    cached -->> datos: update
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POS DELETE
+
+```mermaid
+sequenceDiagram
+title DELETE delete POS
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: DELETE /ms-api/Pos
+    activate api
+    activate pos
+    api->>pos: DELETE /ms-pos/Pos
+    activate cached
+    pos->>cached: DELETE /ms-cached/Pos
+    activate cached
+    cached -->> datos: delete
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POS GET
+
+```mermaid
+sequenceDiagram
+title GET get POS
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/Pos/byId/{id}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/Pos/byId/{id}
+    activate cached
+    pos->>cached: GET /ms-cached/Pos/byId/{id}
+    activate cached
+    cached -->> datos: obtain
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST POST
+
+```mermaid
+sequenceDiagram
+title POST create POS Cost
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: POST /ms-api/PosCost
+    activate api
+    activate pos
+    api->>pos: POST /ms-pos/PosCost
+    activate cached
+    pos->>cached: GET /ms-cached/Pos
+    pos->>cached: GET /ms-cached/Pos
+    activate datos
+    cached -->> datos: obtain
+    cached -->> datos: obtain
+    pos->>cached: POST /ms-cached/PosCost
+    cached -->> datos: create
+    deactivate cached
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST PUT
+
+```mermaid
+sequenceDiagram
+title PUT update POSCOST
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: PUT /ms-api/PosCost
+    activate api
+    activate pos
+    api->>pos: PUT /ms-pos/PosCost
+    activate cached
+    pos->>cached: PUT /ms-cached/PosCost
+    activate cached
+    cached -->> datos: update
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST DELETE
+
+```mermaid
+sequenceDiagram
+title DELETE delete POSCOST
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: DELETE /ms-api/PosCost
+    activate api
+    activate pos
+    api->>pos: DELETE /ms-pos/PosCost
+    activate cached
+    pos->>cached: DELETE /ms-cached/PosCost
+    activate cached
+    cached -->> datos: delete
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST GET
+
+```mermaid
+sequenceDiagram
+title GET obtain POS COST
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/ById/{idA}/{idB}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/ById/{id}
+    activate cached
+    pos->>cached: GET /ms-cached/PosCost/ById/{id}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST GET Points to/from a Point
+
+```mermaid
+sequenceDiagram
+title GET obtain  List of POS Costs
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/pointA?idA={idA}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/pointA?idA={idA}
+    activate cached
+    pos->>cached: GET /ms-cached/PosCost/pointA?idA={idA}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+## POSCOST GET Min Cost By Two Points
+
+```mermaid
+sequenceDiagram
+title GET Obtain POS
+    actor Cliente
+    participant api as ms-api
+    participant pos as ms-pos
+    participant cached as ms-cached
+    participant datos as REDIS
+    Cliente->>api: GET /ms-api/PosCost/pointMin?idA={idA}&idB={idB}
+    activate api
+    activate pos
+    api->>pos: GET /ms-pos/PosCost/pointMin?idA={idA}&idB={idB}
+    activate cached
+    pos->>cached: GET /ms-cached/pointMinBase?idA={idA}&idB={idB}
+    activate cached
+    cached -->> datos: GET
+    deactivate cached
+    activate datos
+    datos -->> cached: return
+    deactivate datos
+    cached -->> pos: return
+    pos -->> api: return
+    api -->> Cliente: return
+```
+
+
+
+## Credits POST
+
+```mermaid
+sequenceDiagram
+title POST create Credits
+    actor Cliente
+    participant api as ms-api
+    participant data as ms-data
+    participant datos as POSTGRESQL
+    Cliente->>api: GET /ms-api/Credits
+    activate api
+    api->>data: POST /ms-data/credits
+    activate data
+    data -->> datos: create
+    activate datos
+    datos -->> data: return
+    deactivate datos
+    deactivate data
+    data -->> api: return
+    api -->> Cliente: return
+```
+## Credits GET
+
+```mermaid
+sequenceDiagram
+title POST create Credits
+    actor Cliente
+    participant api as ms-api
+    participant data as ms-data
+    participant datos as POSTGRESQL
+    Cliente->>api: GET /ms-api/Credits
+    activate api
+    api->>data: GET /ms-data/credits?id={id}
+    activate data
+    data -->> datos: obtain
+    deactivate data
+    activate datos
+    datos -->> data: return
+    deactivate datos
+    data -->> api: return
+    api -->> Cliente: return
+```
