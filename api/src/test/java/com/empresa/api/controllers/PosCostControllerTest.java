@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.empresa.api.dtos.requests.PosCostRequest;
 import com.empresa.api.dtos.response.PosCostHash;
 import com.empresa.api.services.CrudExtraService;
-import com.empresa.core.dtos.requests.PostHashPutRequest;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
@@ -122,7 +122,7 @@ class PosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#put(PostHashPutRequest, String)}
+     * Class under test: {@link PosCostController#put(PosCostPutRequest, String)}
      */
     @Test
     void put() throws Exception {
@@ -148,12 +148,11 @@ class PosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#delete(String)}
+     * Class under test: {@link PosCostController#delete(String)}
      */
     @Test
     void delete() throws Exception {
         when(this.service.delete(any())).thenReturn(Mono.justOrEmpty(new PosCostHash()).map(ApiResponse::new));
-        when(service.putCache(any(), any())).thenReturn(Mono.justOrEmpty(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.delete(POS)
                 .param("id", "COST:1:2")
                 .contentType(MediaType.APPLICATION_JSON)
