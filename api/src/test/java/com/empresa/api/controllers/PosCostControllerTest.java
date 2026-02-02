@@ -1,38 +1,44 @@
 package com.empresa.api.controllers;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 import com.empresa.api.dtos.requests.PosCostRequest;
-import com.empresa.api.dtos.requests.PosHashRequest;
 import com.empresa.api.dtos.response.PosCostHash;
 import com.empresa.api.services.CrudExtraService;
-import com.empresa.core.dtos.requests.PostHashPutRequest;
+import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.List;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(controllers = PosCostController.class)
+@WebMvcTest(controllers = PosCostController.class)
 class PosCostControllerTest {
 
-    public static final String POS = "PosCost";
+    public static final String POS = "/PosCost";
     @Autowired
-    private WebTestClient webTestClient;
+    private MockMvc webTestClient;
     @MockitoBean
     private CrudExtraService<PosCostHash, PosCostRequest> service;
 
@@ -41,108 +47,130 @@ class PosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#get(String)}
+     * Class under test: {@link PosCostController#get(Long, Long)}
      */
     @Test
-    void get() {
+    void get() throws Exception {
         when(service.getById(any(), any())).thenReturn(Mono.justOrEmpty(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
-        this.webTestClient.get()
-                .uri((a)->a
-                        .pathSegment(POS, "byId", "{id}", "{idB}")
-                        .build("1", "2")
-                )
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {})
-                .consumeWith((a)->{
-                    assertThat(a.getResponseBody().getData().getId()).isEqualTo("1");
-                });
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(POS + "/byId/{idA}/{idB}", 1, 2)
+                .contentType(MediaType.APPLICATION_JSON);
+        MvcResult mvcResult = webTestClient.perform(requestBuilder)
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        webTestClient.perform(asyncDispatch(mvcResult))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data.id").value(Matchers.equalTo("1")))
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value("Successful Call"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(service).getById(anyString(), anyString());
     }
 
     /**
-     * Class under test: {@link POSController#getAll()}
+     * Class under test: {@link PosCostController#getAll()}
      */
     @Test
-    void getAll() {
+    void getAll() throws Exception {
         when(this.service.getAll()).thenReturn(Mono.justOrEmpty(Collections.singletonList(new PosCostHash("1", "1", "1", new BigDecimal("1")))).map(ApiResponse::new));
-        this.webTestClient.get().uri((a)->a
-                        .pathSegment(POS)
-                        .queryParam("id").build())
-                .exchange()
-                .expectStatus().is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<List<PosCostHash>>>() {
-                })
-                .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getFirst().getId()).isEqualTo("1");
-                        }
-                );
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(POS)
+                .contentType(MediaType.APPLICATION_JSON);
+        MvcResult mvcResult = webTestClient.perform(requestBuilder)
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        webTestClient.perform(asyncDispatch(mvcResult))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data[0].id").value(Matchers.equalTo("1")))
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value("Successful Call"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(service).getAll();
     }
 
     /**
-     * Class under test: {@link POSController#create(PosHashRequest)}
+     * Class under test: {@link PosCostController#create(PosCostRequest)}
      */
     @Test
-    void create() {
+    void create() throws Exception {
         when(service.createCache(any())).thenReturn(Mono.justOrEmpty(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
-        this.webTestClient.post()
-                .uri((a)->a
-                        .pathSegment(POS)
-                        .queryParam("id").build())
-                .body(BodyInserters.fromValue(new PosCostRequest("1", "1",new BigDecimal("1"))))
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {})
-                .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getId()).isEqualTo("1");
-                        }
-                );
+        String content = new ObjectMapper().writeValueAsString(new PosCostRequest("1", "1", new BigDecimal("1")));
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(POS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content);
+
+        MvcResult mvcResult = webTestClient.perform(requestBuilder)
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        webTestClient.perform(asyncDispatch(mvcResult))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data.id").value(Matchers.equalTo("1")))
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value("Successful Call"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(MockMvcResultMatchers.status().isCreated());
+
+        verify(service).createCache(any());
     }
 
     /**
-     * Class under test: {@link POSController#put(PostHashPutRequest, String)}
+     * Class under test: {@link PosCostController#put(PosCostPutRequest, String)}
      */
     @Test
-    void put() {
+    void put() throws Exception {
         when(service.putCache(any(), any())).thenReturn(Mono.justOrEmpty(new PosCostHash("1", "1", "1", new BigDecimal("1"))).map(ApiResponse::new));
-        this.webTestClient.put().uri((a)->a
-                        .pathSegment(POS)
-                        .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PostHashPutRequest()))
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {})
-                .consumeWith((a)->{
-                            assertThat(a.getResponseBody().getData().getId()).isEqualTo("1");
-                        }
-                );
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.put(POS)
+                .param("id", "COST:1:2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(new PosCostRequest("1", "1", new BigDecimal("1"))));
+        MvcResult mvcResult = webTestClient.perform(requestBuilder)
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        webTestClient.perform(asyncDispatch(mvcResult))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data.id").value(Matchers.equalTo("1")))
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value("Successful Call"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(service).putCache(any(), any());
     }
 
     /**
-     * Class under test: {@link POSController#delete(String)}
+     * Class under test: {@link PosCostController#delete(String)}
      */
     @Test
-    void delete() {
+    void delete() throws Exception {
         when(this.service.delete(any())).thenReturn(Mono.justOrEmpty(new PosCostHash()).map(ApiResponse::new));
-        this.webTestClient.delete()
-                .uri((a)->a
-                        .pathSegment(POS)
-                        .queryParam("id", "1").build())
-                .exchange()
-                .expectStatus()
-                .is2xxSuccessful()
-                .expectAll(o ->{
-                    o.expectHeader().contentType(MediaType.APPLICATION_JSON);
-                })
-                .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {
-                })
-                .consumeWith((a)->{
-                            PosCostHash responseBody = a.getResponseBody().getData();
-                            assertThat(responseBody).isNotNull();
-                            assertThat(responseBody.getId()).isNull();
-                        }
-                );
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.delete(POS)
+                .param("id", "COST:1:2")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(new PosCostRequest("1", "1", new BigDecimal("1"))));
+        MvcResult mvcResult = webTestClient.perform(requestBuilder)
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        webTestClient.perform(asyncDispatch(mvcResult))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.data.id").value(Matchers.nullValue()))
+                .andExpect(jsonPath("$.errors").doesNotExist())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.message").value("Successful Call"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(service).delete(any());
     }
+
 }

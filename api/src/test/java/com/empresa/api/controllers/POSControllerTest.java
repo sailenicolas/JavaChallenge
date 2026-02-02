@@ -30,8 +30,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import reactor.core.publisher.Mono;
 
-@WebMvcTest(controllers = POSController.class)
 @ExtendWith(SpringExtension.class)
+@WebMvcTest(controllers = POSController.class)
 class POSControllerTest {
 
     private static final String POS = "/Pos";
@@ -45,13 +45,13 @@ class POSControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#get(String)}
+     * Class under test: {@link POSController#get(Long)}
      */
     @Test
     void get() throws Exception {
         when(service.getById(any())).thenReturn(Mono.justOrEmpty(new PosHash("1", "1")).map(ApiResponse::new));
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(POS + "/byId/1")
-                .queryParam("id", "1")
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get(POS + "/byId/2")
+                .queryParam("id", "d")
                 .contentType(MediaType.APPLICATION_JSON);
         MvcResult mvcResult = webTestClient.perform(requestBuilder)
                 .andExpect(request().asyncStarted())
@@ -122,7 +122,7 @@ class POSControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#put(PostHashPutRequest, String)}
+     * Class under test: {@link POSController#put(PostHashPutRequest, Long)}
      */
     @Test
     void put() throws Exception {
@@ -148,7 +148,7 @@ class POSControllerTest {
     }
 
     /**
-     * Class under test: {@link POSController#delete(String)}
+     * Class under test: {@link POSController#delete(Long)}
      */
     @Test
     void delete() throws Exception {
