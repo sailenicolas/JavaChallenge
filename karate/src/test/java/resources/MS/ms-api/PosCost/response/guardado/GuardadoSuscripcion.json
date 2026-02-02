@@ -1,0 +1,10 @@
+{
+  "message": "Successful Call",
+  "timestamp": "#notnull",
+  "data": {
+    "id": "COST:9:1",
+    "idPointA": "1",
+    "idPointB": "9",
+    "cost": 1
+  }
+}

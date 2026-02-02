@@ -1,0 +1,3 @@
+VDescripcion,Vjson,Vstatus,Vresponse
+138275 - POS / Guardado - Validar guardado exitoso de suscripción,Suscripcion.json,201,GuardadoSuscripcion.json
+138275 - POS / Guardado - Validar error por duplicado de suscripción,Suscripcion.json,409,GuardadoSuscripcionDuplicate.json
