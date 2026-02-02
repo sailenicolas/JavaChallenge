@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  pullPolicy: Always  # Para Minikube con imágenes locales
+  pullPolicy: IfNotPresent  # Para Minikube con imágenes locales
   
 services:
   data:
