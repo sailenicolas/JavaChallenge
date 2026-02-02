@@ -92,7 +92,7 @@ class PosCostControllerTest {
                 .body(BodyInserters.fromValue(new PosCostRequest("1", "1",new BigDecimal("1"))))
                 .exchange()
                 .expectStatus()
-                .is2xxSuccessful()
+                .isCreated()
                 .expectBody(new ParameterizedTypeReference<ApiResponse<PosCostHash>>() {})
                 .consumeWith((a)->{
                             assertThat(a.getResponseBody().getData().getId()).isEqualTo("1");

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.when;
 
 import com.empresa.api.dtos.requests.CreditsRequest;
 import com.empresa.api.dtos.response.CreditsResponse;
-import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.api.services.DataService;
+import com.empresa.core.dtos.responses.ApiResponse;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +59,7 @@ class DataControllerTest {
                         .queryParam("id").build())
                 .body(BodyInserters.fromValue(new CreditsRequest("1", new BigDecimal("1"))))
                 .exchange()
-                .expectStatus().is2xxSuccessful()
+                .expectStatus().isCreated()
                 .expectBody(new ParameterizedTypeReference<ApiResponse<CreditsResponse>>() {})
                 .consumeWith((a)->{
                             assertThat(a.getResponseBody().getData().getAmount()).isEqualTo("1");
