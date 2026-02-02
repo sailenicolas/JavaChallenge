@@ -31,4 +31,3 @@ build/
 .env
 ### VS Code ###
 .vscode/
-/**/.gradle

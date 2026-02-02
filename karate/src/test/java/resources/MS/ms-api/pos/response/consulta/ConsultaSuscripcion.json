@@ -1,0 +1,8 @@
+{
+  "message": "Successful Call",
+  "timestamp": "#notnull",
+  "data": {
+    "id": "1",
+    "point": "CABA"
+  }
+}
