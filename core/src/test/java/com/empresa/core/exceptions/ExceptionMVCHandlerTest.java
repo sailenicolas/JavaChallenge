@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
@@ -116,8 +118,9 @@ class ExceptionMVCHandlerTest {
     }
 
     @Test
-    void handleMissingPathVariable() {
-        ResponseEntity<Object> responseEntity = this.service.handleMissingPathVariable(new MissingPathVariableException("AA", mock()), new HttpHeaders(), HttpStatus.BAD_REQUEST, mock());
+    void handleMissingPathVariable() throws NoSuchMethodException {
+        Class<?> exceptionMVCHandlerClass = ExceptionMVCHandler.class;
+        ResponseEntity<Object> responseEntity = this.service.handleMissingPathVariable(new MissingPathVariableException("AA", new MethodParameter(exceptionMVCHandlerClass.getMethod("handleException", Exception.class, WebRequest.class), 1)), new HttpHeaders(), HttpStatus.BAD_REQUEST, mock());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
@@ -140,8 +143,9 @@ class ExceptionMVCHandlerTest {
     }
 
     @Test
-    void handleMethodArgumentNotValid() {
-        ResponseEntity<Object> responseEntity = this.service.handleMethodArgumentNotValid(new MethodArgumentNotValidException(mock(), mock()), new HttpHeaders(), HttpStatus.BAD_REQUEST, mock());
+    void handleMethodArgumentNotValid() throws NoSuchMethodException {
+        var exceptionMVCHandlerClass = ExceptionMVCHandler.class;
+        ResponseEntity<Object> responseEntity = this.service.handleMethodArgumentNotValid(new MethodArgumentNotValidException(new MethodParameter(exceptionMVCHandlerClass.getMethod("handleException", Exception.class, WebRequest.class), 1), mock()), new HttpHeaders(), HttpStatus.BAD_REQUEST, mock());
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
