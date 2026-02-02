@@ -111,7 +111,7 @@ class PosCostControllerTest {
         this.webTestClient.put().uri((a)->a
                         .pathSegment(POS)
                         .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PosHashRequest()))
+                .body(BodyInserters.fromValue(new PosCostPutRequest(new BigDecimal("1"))))
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()

@@ -16,7 +16,6 @@ import com.empresa.core.dtos.requests.PosCostPutRequest;
 import com.empresa.core.dtos.responses.ApiResponse;
 import com.empresa.core.dtos.responses.PosCostBHash;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -116,7 +115,7 @@ class PosCostControllerTest {
         this.webTestClient.put().uri((a)->a
                         .pathSegment(POS)
                         .queryParam("id", "1").build())
-                .body(BodyInserters.fromValue(new PosCostPutRequest()))
+                .body(BodyInserters.fromValue(new PosCostPutRequest(new BigDecimal("1"))))
                 .exchange()
                 .expectStatus()
                 .is2xxSuccessful()
