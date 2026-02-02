@@ -46,7 +46,7 @@ class CachePosCostControllerTest {
     }
 
     /**
-     * Class under test: {@link PosCostController#getPointMin(String, String)}
+     * Class under test: {@link PosCostController#getPointMin(Long, Long)}
      */
     @Test
     void getPointMin() throws Exception {
@@ -73,7 +73,7 @@ class CachePosCostControllerTest {
         verify(service).getPointMin(anyString(), anyString());
     }
     /**
-     * Class under test: {@link PosCostController#getPointC(String)} 
+     * Class under test: {@link PosCostController#getPointA(Long)}
      */
     @Test
     void getPointA() throws Exception {
@@ -97,4 +97,5 @@ class CachePosCostControllerTest {
 
         verify(service).getPointB(anyString());
     }
+
 }

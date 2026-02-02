@@ -4,7 +4,6 @@ import static com.empresa.core.utils.DataUtils.getId;
 
 import com.empresa.core.dtos.responses.PosCostBHash;
 import com.empresa.core.exceptions.NotFoundServiceException;
-import com.empresa.pos.dtos.response.PosCostHash;
 import com.empresa.pos.dtos.response.PosCostMin;
 import com.empresa.pos.dtos.response.PosCostMinHash;
 import com.empresa.pos.predicates.PredicateFindPosCost;
@@ -33,11 +32,7 @@ public class PosCostMinServiceImpl implements PostCostMinService {
     public Mono<PosCostMinHash> findById(String source, String target) {
         return posCostService.getMinCostBase(source, target)
                 .filter(o -> !o.outgoing().isEmpty() || !o.incoming().isEmpty())
-                .flatMap(o -> Mono.fromSupplier(()-> {
-                            System.out.println("o = " + o);
-                    return this.shortestPath(source, target, o);
-                })
-
+                .flatMap(o -> Mono.fromSupplier(() -> this.shortestPath(source, target, o))
                 )
                 .switchIfEmpty(Mono.error(NotFoundServiceException::new))
                 .subscribeOn(Schedulers.boundedElastic());
