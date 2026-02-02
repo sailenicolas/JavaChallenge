@@ -2,9 +2,9 @@ package com.empresa.api.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.empresa.core.exceptions.ApiError;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 class ExceptionAdviceHandlerTest {
@@ -33,6 +32,15 @@ class ExceptionAdviceHandlerTest {
     @Test
     void handlerException() {
         ResponseEntity<Object> responseEntity = this.exceptionAdviceHandler.handleExceptions(new WebClientResponseException(500, "", new HttpHeaders(), "".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8), mock());
+        assertThat(responseEntity).isNotNull();
+    }
+
+    @Test
+    void handleConstraintViolationException() {
+        ConstraintViolationException mock = mock();
+        when(mock.getCause()).thenReturn(new Throwable());
+        when(mock.getMessage()).thenReturn("hello");
+        ResponseEntity<Object> responseEntity = this.exceptionAdviceHandler.handleConstraintViolationException(mock);
         assertThat(responseEntity).isNotNull();
     }
 }
